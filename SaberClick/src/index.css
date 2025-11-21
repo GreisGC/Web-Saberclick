@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #2d3436; /* Color gris oscuro */
+  color:white;
+}
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Asegura que ocupe el 100% del body */
+}
