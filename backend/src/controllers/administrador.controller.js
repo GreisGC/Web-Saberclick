@@ -1,5 +1,8 @@
 const pool = require('../db');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 // Obtener todos los Administrador
 const getAllAdministrador = async (req, res, next) => {
   try {
@@ -73,7 +76,7 @@ const createAdministrador = async (req, res, next) => {
             celular,
             fecha_naci,
             cargo,
-            
+            password
     } = req.body; 
 
     const rol = 'Administrador';
@@ -81,10 +84,11 @@ const createAdministrador = async (req, res, next) => {
     try {
         await pool.query('BEGIN'); 
 
+		const newpassword = await bcrypt.hash(password,saltRounds);
         
         const userResult = await pool.query(
-            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_usuario",
-            [nombre, paterno, materno, correo, celular, fecha_naci, rol] 
+            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_usuario",
+            [nombre, paterno, materno, correo, celular, fecha_naci, rol, newpassword] 
         );
         
         const id_usuario_creado = userResult.rows[0].id_usuario; 

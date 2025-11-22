@@ -2,6 +2,9 @@ const pool = require('../db');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 // Función para renombrar y guardar el PDF
 function savePdf(file) {
     const newPath = `./upload/${file.originalname}`;
@@ -88,9 +91,12 @@ const createTutor = async (req, res, next) => {
             fecha_naci,
             especialidad,
             anos_experiencia,
+			password
         } = req.body;
 
         const rol = 'Tutor';
+
+		const newpassword = await bcrypt.hash(password,saltRounds);
 
         // Validar archivo PDF
         if (!req.file) {
@@ -107,8 +113,8 @@ const createTutor = async (req, res, next) => {
 
         // Crear usuario
         const userResult = await pool.query(
-            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_usuario",
-            [nombre, paterno, materno, correo, celular, fecha_naci, rol]
+            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_usuario",
+            [nombre, paterno, materno, correo, celular, fecha_naci, rol, newpassword]
         );
 
         const id_usuario_creado = userResult.rows[0].id_usuario;

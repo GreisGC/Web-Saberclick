@@ -1,5 +1,8 @@
 const pool = require('../db');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 //Obtener todos los estudiantes
 const getAllGerente = async (req, res, next) => {
 // req= objeto de la peticion http, res = respuesta que enviaras al cliente, next=funcion para pasar al siguienete middleware(util para manejo de errorres)
@@ -75,7 +78,7 @@ const createGerente = async (req, res, next) => {
             correo,
             celular,
             fecha_naci,
-            
+            password
     } = req.body; 
 
     const rol = 'Gerente';
@@ -84,9 +87,11 @@ const createGerente = async (req, res, next) => {
         await pool.query('BEGIN'); 
         //realiza una transaccion en postgresql
 
+		const newpassword = await bcrypt.hash(password,saltRounds);
+
         const userResult = await pool.query(
-            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_usuario",
-            [nombre, paterno, materno, correo, celular, fecha_naci, rol] 
+            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_usuario",
+            [nombre, paterno, materno, correo, celular, fecha_naci, rol, newpassword] 
         );
         
         const id_usuario_creado = userResult.rows[0].id_usuario;
@@ -196,10 +201,25 @@ const updateGerente = async (req, res, next) => {
     }
 };
 
+const listarGerentes=async (req, res, next)=>{
+	try {
+		const result = await pool.query(
+			`SELECT g.id_gerente,u.id_usuario,u.nombre,u.paterno,u.materno
+			FROM usuario u
+			INNER JOIN gerente g ON u.id_usuario=g.id_usuario`
+		);
+		const rows=result.rows;
+		res.json(rows);
+	} catch (error) {
+		next(error);
+	}
+}
+
 module.exports = {
   getAllGerente,
   getGerente,
   createGerente,
   deleteGerente,
-  updateGerente
+  updateGerente,
+  listarGerentes
 };

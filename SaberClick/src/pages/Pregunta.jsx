@@ -23,7 +23,6 @@ function Pregunta() {
 
   // Eliminación (Deshabilitación) 
   const handleEliminar = async (idPregunta) => {
-    
       // **IMPORTANTE**: Reemplazamos window.confirm/alert con manejo de consola o un modal MUI customizado
       console.log(`Paso 1: Solicitud de deshabilitación para la pregunta ID: ${idPregunta}`);
       const confirmar = true; // Simulación de confirmación positiva

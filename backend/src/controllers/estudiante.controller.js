@@ -1,5 +1,8 @@
 const pool = require('../db');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 //Obtener todos los estudiantes
 const getAllEstudiante = async (req, res, next) => {
 // req= objeto de la peticion http, res = respuesta que enviaras al cliente, next=funcion para pasar al siguienete middleware(util para manejo de errorres)
@@ -75,7 +78,7 @@ const createEstudiante = async (req, res, next) => {
             correo,
             celular,
             fecha_naci,
-            
+            password
     } = req.body; 
 
     const rol = 'Estudiante';
@@ -84,9 +87,11 @@ const createEstudiante = async (req, res, next) => {
         await pool.query('BEGIN'); 
         //realiza una transaccion en postgresql
 
+		const newpassword = await bcrypt.hash(password,saltRounds);
+
         const userResult = await pool.query(
-            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id_usuario",
-            [nombre, paterno, materno, correo, celular, fecha_naci, rol] 
+            "INSERT INTO usuario (nombre, paterno, materno, correo, celular, fecha_naci, rol, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_usuario",
+            [nombre, paterno, materno, correo, celular, fecha_naci, rol, newpassword] 
         );
         
         const id_usuario_creado = userResult.rows[0].id_usuario;

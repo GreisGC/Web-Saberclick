@@ -1,4 +1,5 @@
 CREATE DATABASE SaberClick
+
 -- 1
 CREATE TABLE usuario(
     id_usuario SERIAL PRIMARY KEY,
@@ -12,11 +13,15 @@ CREATE TABLE usuario(
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR DEFAULT 'Habilitado'
 );
+
+alter table usuario
+ADD COLUMN password VARCHAR(60):
 --2
 CREATE TABLE administrador(
     id_admin SERIAL PRIMARY KEY,
     cargo VARCHAR(50) NOT NULL,
-    id_usuario INT NOT NULL REFERENCES usuario(id_usuario)
+    id_usuario INT NOT NULL REFERENCES usuario(id_usuario),
+	estado VARCHAR(20) DEFAULT 'Habilitado'
 );
 --3
 CREATE TABLE tutor(
@@ -117,6 +122,7 @@ CREATE TABLE pregunta (
     enunciado TEXT NOT NULL,
     resp_correcta VARCHAR(255) NOT NULL,
     id_tutoria INT NOT NULL,
+	estado VARCHAR DEFAULT 'Habilitado',
     FOREIGN KEY (id_tutoria) REFERENCES tutoria(id_tutoria) ON DELETE CASCADE
 );
 --13
