@@ -80,10 +80,10 @@ const createAdministrador = async (req, res, next) => {
     } = req.body; 
 
     const rol = 'Administrador';
-
+     
     try {
         await pool.query('BEGIN'); 
-
+     
 		const newpassword = await bcrypt.hash(password,saltRounds);
         
         const userResult = await pool.query(
