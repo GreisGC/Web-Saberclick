@@ -193,6 +193,69 @@ const createInscripcion = async (req, res, next) => {
   }
 };
 
+const createInscripcion2 = async (req, res, next) => {
+  const {
+    fecha_inscripcion,
+    hora_inscripcion,
+    nota1,
+    nota2,
+    nota3,
+    intento1,
+    intento2,
+    intento3,
+    id_tutoria,
+    id_paralelo,
+    id_estudiante
+  } = req.body;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const getIns=await client.query(`
+      SELECT * FROM inscripcion
+      WHERE id_tutoria = $1 AND id_paralelo = $2 AND id_estudiante = $3 AND estado='Habilitado'
+      `,[id_tutoria,id_paralelo,id_estudiante]);
+    
+    const oldInscripcion=getIns.rows[0];
+    if(oldInscripcion){
+      await client.query('COMMIT');
+      return res.status(200).json({
+        message: 'Inscripción recuperada correctamente.',
+        inscripcion: oldInscripcion
+      });
+    }
+
+    // Crear la inscripción (solo aquí va el id_estudiante)
+    const inscripcion = await client.query(
+      `INSERT INTO inscripcion 
+      (fecha_inscripcion, hora_inscripcion, nota1, nota2, nota3,intento1, intento2, intento3, id_tutoria, id_paralelo, id_estudiante, estado)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'Habilitado')
+      RETURNING *`,
+      [fecha_inscripcion, hora_inscripcion, nota1, nota2, nota3, intento1,intento2, intento3 , id_tutoria, id_paralelo, id_estudiante]
+    );
+
+    const nuevaInscripcion = inscripcion.rows[0];
+
+    
+
+    await client.query('COMMIT');
+
+    return res.status(201).json({
+      message: 'Inscripción creada correctamente con su pago pendiente.',
+      inscripcion: nuevaInscripcion
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error en createInscripcion:', error);
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
 // Eliminar una Inscripcion (deshabilitar)
 const deleteInscripcion = async (req, res, next) => {
     try {
@@ -291,11 +354,67 @@ const updateInscripcion = async (req, res, next) => {
   }
 };
 
+const updateNroIntento=async (req, res, next)=>{
+  try {
+    const {id_inscripcion,nota}=req.body;
+
+    const result = await pool.query(
+      "SELECT * FROM inscripcion WHERE id_inscripcion = $1 AND estado = 'Habilitado'",
+      [id_inscripcion]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ message: "Inscripción no encontrada" });
+
+    
+
+    const inscripcion=result.rows[0];
+
+    if(inscripcion.nota1<51 && inscripcion.intento1<3){
+      const intento=Number(inscripcion.intento1)+1
+      const rr = await pool.query(
+        `UPDATE inscripcion 
+          SET nota1=$1 , intento1=$2
+          WHERE id_inscripcion = $3 AND estado = 'Habilitado'`,
+        [nota,intento,id_inscripcion]
+      );
+      res.json(rr.rows[0]);
+      return;
+    }else if(inscripcion.nota2<51 && inscripcion.intento2<3){
+      const intento=Number(inscripcion.intento2)+1
+      const rr = await pool.query(
+        `UPDATE inscripcion 
+          SET nota2=$1 , intento2=$2
+          WHERE id_inscripcion = $3 AND estado = 'Habilitado'`,
+        [nota,intento,id_inscripcion]
+      );
+      res.json(rr.rows[0]);
+      return;
+    }else if(inscripcion.nota3<51 && inscripcion.intento3<3){
+      const intento=Number(inscripcion.intento3)+1
+      const rr = await pool.query(
+        `UPDATE inscripcion 
+          SET nota3=$1 , intento3=$2
+          WHERE id_inscripcion = $3 AND estado = 'Habilitado'`,
+        [nota,intento,id_inscripcion]
+      );
+      res.json(rr.rows[0]);
+      return;
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 module.exports = {
   getAllInscripcion,
   getInscripcion,
   createInscripcion,
   deleteInscripcion,
-  updateInscripcion
+  updateInscripcion,
+  createInscripcion2,
+  updateNroIntento
 };

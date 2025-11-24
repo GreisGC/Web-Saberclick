@@ -80,6 +80,7 @@ const ModalLogin = () => {
 					rol: data.rol,
 					username: data.username,
 					id: data.id,
+					id_usuario: data.id_usuario,
 				});
 				setOpen(false);
 			})

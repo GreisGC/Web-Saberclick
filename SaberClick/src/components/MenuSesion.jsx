@@ -86,6 +86,10 @@ const menuEstudiante = [
 		url: "/inscripcion",
 		nombre: "Inscripcion",
 	},
+	{
+		url: "/inscripcion/evaluacion",
+		nombre: "Evaluacion",
+	},
 ];
 
 const menuTutor = [

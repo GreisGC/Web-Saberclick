@@ -163,10 +163,61 @@ const updatePregunta = async (req, res, next) => {
     }
 };
 
+const getPreguntasByInstitutoTutoria=async (req,res,next)=>{
+	try{
+		const {id_institucion,id_tutoria}=req.body;
+		const result=await pool.query(
+			`SELECT i.id_institucion,pa.id_tutoria,p.* 
+			FROM pregunta p
+			INNER JOIN tutoria t ON t.id_tutoria=p.id_tutoria
+			INNER JOIN paralelo pa ON p.id_tutoria=pa.id_tutoria
+			INNER JOIN institucion i ON i.id_institucion=t.id_institucion
+			WHERE i.id_institucion=$1 AND t.id_tutoria=$2 AND p.estado='Habilitado'
+			ORDER BY p.id_pregunta,p.nro_pregunta
+			`,[id_institucion,id_tutoria]
+		);
+		const listaPreguntas=result.rows;
+		if(!listaPreguntas){
+			res.status(200).send({preguntas:[]});
+			return;
+		}
+
+		const mezclado=[...listaPreguntas].sort(()=>Math.random()-0.5);
+
+		const resultado=mezclado.slice(0,5);
+
+		res.status(200).send({preguntas:resultado});
+	}catch{
+		next(error);
+	}
+}
+
+const getIncisosByPregunta=async (req,res,next)=>{
+	try {
+		const {id_pregunta}=req.params;
+		const result=await pool.query(
+			`
+			SELECT o.* FROM opcion o
+			WHERE o.id_pregunta=$1 AND o.estado='Habilitado';
+			`,[id_pregunta]
+		);
+		const listaIncisos=result.rows;
+		if(!listaIncisos){
+			res.status(200).send({incisos:[]});
+			return;
+		}
+		res.status(200).send({incisos:listaIncisos});
+	} catch (error) {
+		next(error);
+	}
+}
+
 module.exports = {
     getAllPregunta,
     getPregunta,
     createPregunta,
     deletePregunta,
-    updatePregunta
+    updatePregunta,
+	getPreguntasByInstitutoTutoria,
+	getIncisosByPregunta
 };

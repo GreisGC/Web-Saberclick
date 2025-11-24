@@ -30,6 +30,7 @@ import FormInscripcion from './pages/FormInscripcion';
 import { useContext, useEffect } from 'react';
 import { SesionContext } from './context/SesionContext';
 import { jwtDecode } from 'jwt-decode';
+import InscripcionParalelo from './pages/Evaluacion/InscripcionParalelo';
 
 
 
@@ -79,6 +80,8 @@ function App() {
 			<Route path="/usuarios/new/Tema" element={<FormTema/>}/>
 			<Route path="/usuarios/new/Opcion" element={<FormOpcion/>}/>
 			<Route path="/usuarios/new/Inscripcion" element={<FormInscripcion/>}/>
+
+			<Route path="/inscripcion/evaluacion" element={<InscripcionParalelo id_paralelo={3} id_tutoria={1}/>}/>
 			
 			<Route path="/estudiante/:id/edit" element={<FormEstudiante />}/>
 			<Route path="/administrador/:id/edit" element={<FormAdministrador/>}/>

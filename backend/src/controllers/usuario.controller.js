@@ -114,16 +114,16 @@ const loginSesion=async (req,res,next)=>{
 		const {correo,password}= req.body;
 		const result = await pool.query(`
 			SELECT * FROM ( 
-				SELECT u.id_usuario,u.correo,u.password ,'administrador' rol FROM usuario u
+				SELECT u.id_usuario, a.id_admin as id ,u.correo,u.password ,'administrador' rol FROM usuario u
 				INNER JOIN administrador a ON a.id_usuario=u.id_usuario
 				UNION
-				SELECT u.id_usuario,u.correo,u.password,'gerente' rol FROM usuario u
+				SELECT u.id_usuario, g.id_gerente as id,u.correo,u.password,'gerente' rol FROM usuario u
 				INNER JOIN gerente g ON g.id_usuario =u.id_usuario
 				UNION
-				SELECT u.id_usuario,u.correo,u.password,'tutor' rol FROM usuario u
+				SELECT u.id_usuario, t.id_tutor as id,u.correo,u.password,'tutor' rol FROM usuario u
 				INNER JOIN tutor t ON t.id_usuario=u.id_usuario
 				UNION
-				SELECT u.id_usuario,u.correo,u.password,'estudiante' rol FROM usuario u
+				SELECT u.id_usuario, e.id_estudiante as id,u.correo,u.password,'estudiante' rol FROM usuario u
 				INNER JOIN estudiante e ON e.id_usuario=u.id_usuario
 				) aux
 			WHERE aux.correo = $1
@@ -141,7 +141,8 @@ const loginSesion=async (req,res,next)=>{
 		const newSesion={
 			username:sesion.correo,
 			rol:sesion.rol,
-			id:sesion.id_usuario
+			id_usuario:sesion.id_usuario,
+			id:sesion.id
 		}
 		const token=jwt.sign({
 						exp: Math.floor(Date.now() / 1000) + (60 * 60),
