@@ -38,6 +38,20 @@ const getTutoria = async (req, res, next) => {
 	}
 };
 
+const getTutoriaPorInstitucion = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query("SELECT * FROM tutoria WHERE id_institucion = $1 AND estado = 'Habilitado'", [id]);
+
+        if (result.rows.length === 0)
+            return res.status(404).json({ message: "Tutoria no encontrado" });
+
+        res.json(result.rows??[]);// Devuelve un array vacio
+    } catch (error) {
+        next(error);
+    }
+};
+
 //Crear Tutoria
 const createTutoria = async (req, res, next) => {
 	const client = await pool.connect();
@@ -210,6 +224,7 @@ const updateTutoria = async (req, res, next) => {
 module.exports = {
 	getAllTutoria,
 	getTutoria,
+    getTutoriaPorInstitucion,
 	createTutoria,
 	deleteTutoria,
 	updateTutoria,
