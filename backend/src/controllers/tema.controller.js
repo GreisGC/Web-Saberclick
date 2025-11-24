@@ -22,9 +22,7 @@ function saveFile(file) {
     return newPath; 
 }
 
-// ===================================
-//   OPERACIONES DE LECTURA (GET)
-// ===================================
+
 
 const getAllTema = async (req, res, next) => {
   try {
@@ -71,10 +69,23 @@ const getTema = async (req, res, next) => {
         next(error);
     }
 };
+const getTemaPorTutoria = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query(
+            "SELECT * FROM tema WHERE id_tutoria = $1 AND estado = 'Habilitado'",
+            [id]
+        );
 
-// ===============================
-//   CREAR TEMA CON VARIOS ARCHIVOS
-// ===============================
+        if (result.rows.length === 0)
+            return res.status(404).json({ message: "Tema no encontrado" });
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+};
+
 const createTema = async (req, res, next) => {
     const { titulo, descripcion, nombre_tutoria, nombre_institucion } = req.body;
     const client = await pool.connect();
@@ -240,6 +251,7 @@ module.exports = {
     upload,
     getAllTema,
     getTema,
+    getTemaPorTutoria,
     createTema,
     deleteTema,
     updateTema

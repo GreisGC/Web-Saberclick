@@ -4,6 +4,7 @@ const router = Router();
 const {
     getAllParalelo,
     getParalelo,
+   getParaleloPorTutoria,
     createParalelo,
     deleteParalelo,
     updateParalelo
@@ -12,6 +13,7 @@ const {
 
 router.get('/paralelo', getAllParalelo);
 router.get('/paralelo/:id', getParalelo);
+router.get('/paraleloPorTutoria/:id', getParaleloPorTutoria);
 router.post('/paralelo', createParalelo);
 router.delete('/paralelo/:id', deleteParalelo);
 router.put('/paralelo/:id', updateParalelo);

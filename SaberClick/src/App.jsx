@@ -1,6 +1,9 @@
 
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import Home from './pages/Home'; 
+import TutoriasHome from './pages/TutoriasHome'; 
+import ParaleloHome from './pages/ParaleloHome'; 
+
 
 import Usuarios from './pages/Usuarios'; 
 import UsuarioForm from './pages/UsuarioForm';
@@ -33,6 +36,8 @@ import { jwtDecode } from 'jwt-decode';
 
 
 
+
+
 function App() {
   const { sesion, setSesionI } = useContext(SesionContext);
   const recuperarSesionDeLocalStorage=()=>{
@@ -55,6 +60,8 @@ function App() {
 		{/* <Menu/> */}
 		<Routes>
 			<Route path="/" element={<Home />} />
+			<Route path="/TutoriasHome" element={<TutoriasHome />} />
+			<Route path="/ParaleloHome" element={<ParaleloHome />} />
 			<Route path="/usuarios" element={<Usuarios />} />
 			<Route path="/estudiante" element={<Estudiante />} />
 			<Route path="/administrador" element={<Administrador />} />
