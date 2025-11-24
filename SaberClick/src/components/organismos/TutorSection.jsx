@@ -37,11 +37,12 @@ function TutoresSection() {
 
       {listaTutorias.map((tutorias) => (
         <TutorCard 
-          key={tutorias.id_tutorias}
+          key={tutorias.id_tutoria}
           nombreTutoria={tutorias.nombre_tutoria}
           descripcion={tutorias.descripcion}
           costo={tutorias.costo}
           imageSrc={'https://via.placeholder.com/120x120?text=Grecia+1'}
+		  idTutoria={tutorias.id_tutoria}
 
         />
       ))}

@@ -16,7 +16,7 @@ function TutorCard({
 
   // Función para manejar la navegación
   const handleParalelosClick = () => {
-    
+    console.log("holalaa",idTutoria,nombreTutoria)
     navigate('/ParaleloHome', { 
       state: {
         id_tutoria: idTutoria,

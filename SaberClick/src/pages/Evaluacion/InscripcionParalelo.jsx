@@ -10,12 +10,12 @@ import { SesionContext } from "../../context/SesionContext";
  * @property {number} id_paralelo - ID del paralelo.
  */
 const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
-	const { sesion } = useContext(SesionContext);
+	const { sesion, id_paraleloI, id_tutoriaI } = useContext(SesionContext);
 	const [inscripcion, setInscripcion] = useState({
 		id_inscripcion: 0,
 		fecha_inscripcion: "2025-11-21T04:00:00.000Z",
 		hora_inscripcion: "09:30:00",
-		nota1: "1.00",
+		nota1: "0.00",
 		nota2: "0.00",
 		nota3: "0.00",
 		intento1: "0.00",
@@ -55,7 +55,7 @@ const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
 			redirect: "follow",
 		};
 
-		fetch("http://localhost:4000/tutoria/" + id_tutoria, requestOptions)
+		fetch("http://localhost:4000/tutoria/" + id_tutoriaI, requestOptions)
 			.then((response) => response.json())
 			.then((result) => {
 				setTutoria(result);
@@ -69,7 +69,7 @@ const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
 			redirect: "follow",
 		};
 
-		fetch("http://localhost:4000/paralelo/" + id_paralelo, requestOptions)
+		fetch("http://localhost:4000/paralelo/" + id_paraleloI, requestOptions)
 			.then((response) => response.json())
 			.then((result) => {
 				setParalelo(result);
@@ -90,7 +90,7 @@ const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
 			intento1: 0,
 			intento2: 0,
 			intento3: 0,
-			id_tutoria: id_tutoria,
+			id_tutoria: id_tutoriaI,
 			id_paralelo: id_paralelo,
 			id_estudiante: sesion.id,
 		});
@@ -139,7 +139,7 @@ const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
 							<MostrarNotas
 								{...inscripcion}
 								id_institucion={tutoria.id_institucion}
-								onSendNota={()=>{
+								onSendNota={() => {
 									obtenerInscripcion();
 								}}
 							/>
