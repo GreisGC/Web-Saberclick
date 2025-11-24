@@ -9,7 +9,7 @@ import { SesionContext } from "../../context/SesionContext";
  * @property {number} id_tutoria - ID de la tutoría.
  * @property {number} id_paralelo - ID del paralelo.
  */
-const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
+const InscripcionParalelo = () => {
 	const { sesion, id_paraleloI, id_tutoriaI } = useContext(SesionContext);
 	const [inscripcion, setInscripcion] = useState({
 		id_inscripcion: 0,
@@ -91,7 +91,7 @@ const InscripcionParalelo = ({ id_paralelo, id_tutoria }) => {
 			intento2: 0,
 			intento3: 0,
 			id_tutoria: id_tutoriaI,
-			id_paralelo: id_paralelo,
+			id_paralelo: id_paraleloI,
 			id_estudiante: sesion.id,
 		});
 

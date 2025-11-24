@@ -88,7 +88,7 @@ function App() {
 			<Route path="/usuarios/new/Opcion" element={<FormOpcion/>}/>
 			<Route path="/usuarios/new/Inscripcion" element={<FormInscripcion/>}/>
 
-			<Route path="/inscripcion/evaluacion" element={<InscripcionParalelo id_paralelo={3} id_tutoria={1}/>}/>
+			<Route path="/inscripcion/evaluacion" element={<InscripcionParalelo/> }/>
 			
 			<Route path="/estudiante/:id/edit" element={<FormEstudiante />}/>
 			<Route path="/administrador/:id/edit" element={<FormAdministrador/>}/>
