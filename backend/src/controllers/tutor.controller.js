@@ -107,7 +107,7 @@ const createTutor = async (req, res, next) => {
         const pdfPath = savePdf(req.file);
 
         // URL pública del PDF
-        const pdfUrl = `http://localhost:7001/${pdfPath.replace('./', '')}`;
+        const pdfUrl = `http://localhost:4000/${pdfPath.replace('./', '')}`;
 
         await pool.query('BEGIN');
 

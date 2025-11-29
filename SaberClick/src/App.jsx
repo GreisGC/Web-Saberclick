@@ -21,6 +21,7 @@ import FormTutoria from './pages/FormTutoria';
 import Tema from './pages/Tema';
 import Paralelo from './pages/Paralelo';
 import Pregunta from './pages/Pregunta';
+import Tutor from './pages/Tutor'
 //import Menu from './pages/UsuarioNav';
 //import {Container} from '@mui/material';
 import FormPregunta from './pages/FormPregunta';
@@ -33,7 +34,6 @@ import FormInscripcion from './pages/FormInscripcion';
 import { useContext, useEffect } from 'react';
 import { SesionContext } from './context/SesionContext';
 import { jwtDecode } from 'jwt-decode';
-import InscripcionParalelo from './pages/Evaluacion/InscripcionParalelo';
 
 
 
@@ -68,9 +68,10 @@ function App() {
 			<Route path="/administrador" element={<Administrador />} />
 			<Route path="/gerente" element={<Gerente />} />
 			<Route path="/institucion" element={<Institucion />} />
-			<Route path="/tutoria" element={<Tutoria />} />
+			<Route path="/tutor" element={<Tutor />} /> 
 			<Route path="/tema" element={<Tema />} />
 			<Route path="/paralelo" element={<Paralelo />} />
+			<Route path="/tutoria" element={<Tutoria />} />
 			<Route path="/pregunta" element={<Pregunta />} />
 			<Route path="/opcion" element={<Opcion />} />
 			<Route path="/inscripcion" element={<Inscripcion />} />
@@ -87,8 +88,7 @@ function App() {
 			<Route path="/usuarios/new/Tema" element={<FormTema/>}/>
 			<Route path="/usuarios/new/Opcion" element={<FormOpcion/>}/>
 			<Route path="/usuarios/new/Inscripcion" element={<FormInscripcion/>}/>
-
-			<Route path="/inscripcion/evaluacion" element={<InscripcionParalelo/> }/>
+			
 			
 			<Route path="/estudiante/:id/edit" element={<FormEstudiante />}/>
 			<Route path="/administrador/:id/edit" element={<FormAdministrador/>}/>
@@ -100,6 +100,7 @@ function App() {
 			<Route path="/tema/:id/edit" element={<FormTema/>}/>
 			<Route path="/opcion/:id/edit" element={<FormOpcion/>}/>
 			<Route path="/inscripcion/:id/edit" element={<FormInscripcion/>}/>
+			<Route path="/tutor/:id/edit" element={<FormTutor/>}/>
 		</Routes>
 	</BrowserRouter>
     

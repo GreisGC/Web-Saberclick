@@ -182,7 +182,11 @@ function TutorForm() {
               />
             </Grid>
           </Grid>
-
+          <Grid item xs={12} sm={6}>
+              <Typography sx={{ mb: 1 }}>Password:</Typography>
+              <TextField name="password" onChange={handleChange} {...inputBaseProps} />
+            </Grid>
+        
           {/* Botón */}
           <Grid container justifyContent="center">
             <Grid item>

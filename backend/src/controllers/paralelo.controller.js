@@ -28,26 +28,52 @@ const getParalelo = async(req, res, next) =>{
     
 };
 
-const getParaleloPorTutoria = async(req, res, next) =>{
-    
-    try{
-        const {id} = req.params;
-    
-    const result = await pool.query("SELECT * FROM paralelo WHERE id_tutoria = $1 AND estado = 'Habilitado'" , [id]);
-    
-    if(result.rows.length === 0)
-        return res.status(404).json({
-            message:"Paralelo not found",
-    });
-    
-    return res.json(result.rows[0]);
-    }catch(error){
-        next(error);
-    }
-    
+const getParaleloPorTutoria = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      "SELECT * FROM paralelo WHERE id_tutoria = $1 AND estado = 'Habilitado'",
+      [id]
+    );
+
+    return res.json(result.rows); // ← siempre devuelve array (aunque vacío)
+  } catch (error) {
+    next(error);
+  }
 };
 
 
+
+const getTutorPorParalelo = async (req, res, next) => {
+  try {
+    const { id } = req.params; // id del paralelo que llega por la URL
+
+    // Consulta SQL: Obtenemos el usuario asociado al tutor de un paralelo específico
+    const result = await pool.query(
+      `
+      SELECT u.*, t.id_tutor, t.especialidad, t.cv, t.anos_experiencia
+      FROM paralelo p
+      INNER JOIN tutor t ON p.id_tutor = t.id_tutor
+      INNER JOIN usuario u ON t.id_usuario = u.id_usuario
+      WHERE p.id_paralelo = $1 AND p.estado = 'Habilitado'
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Tutor not found for this paralelo",
+      });
+    }
+
+    // Retornamos todos los datos del usuario + info del tutor
+    return res.json(result.rows[0]); // solo un tutor por paralelo
+  } catch (error) {
+    console.error("Error al obtener tutor por paralelo:", error);
+    next(error);
+  }
+};
 
 // Crear un nuevo paralelo
 const createParalelo = async (req, res, next) => {
@@ -228,6 +254,7 @@ module.exports = {
     getAllParalelo,
     getParalelo,
     getParaleloPorTutoria,
+    getTutorPorParalelo,
     createParalelo,
     deleteParalelo,
     updateParalelo

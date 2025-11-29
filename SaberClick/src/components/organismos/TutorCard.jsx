@@ -1,122 +1,102 @@
+import { Card, CardContent, Typography, Grid, Box, Rating, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import img from '../../assets/mujer.jpeg';
 
+function TutorCard({ tutoria }) {
+  const navigate = useNavigate();
 
-import { Card, CardContent, Typography, Grid, Box, Rating, Link, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; // 👈 Importamos useNavigate
-
-function TutorCard({ 
-    nombreTutoria, 
-    descripcion, 
-    costo, 
-    imageSrc, 
-    name, // Agregado: el nombre del tutor para la imagen (parece que estaba faltando)
-    idTutoria // 👈 Nuevo: ID para enviar
-}) {
-  const navigate = useNavigate(); // 👈 Inicializamos el hook
-  const headerColor = '#9c27b0'; 
-
-  // Función para manejar la navegación
   const handleParalelosClick = () => {
-    console.log("holalaa",idTutoria,nombreTutoria)
-    navigate('/ParaleloHome', { 
+    navigate("/ParaleloHome", {
       state: {
-        id_tutoria: idTutoria,
-        nombre_tutoria: nombreTutoria
-
+        id: tutoria.id_tutoria,
+        nombre: tutoria.nombre_tutoria,
+        descripcion: tutoria.descripcion,
+        costo:tutoria.costo
       }
     });
   };
 
   return (
     <Card 
-      elevation={3} 
-      sx={{ mb: 4, borderRadius: 2, overflow: 'visible' }} 
+      elevation={8} 
+      sx={{ 
+        mb: 4, 
+        borderRadius: 3, 
+        transition: 'box-shadow 0.3s',
+        '&:hover': { boxShadow: 12 }
+      }} 
     >
       <Grid container>
-        {/* Columna de la Imagen y Nombre del Tutor */}
+        
+        {/* Imagen */}
         <Grid item xs={12} sm={4}>
-          <Box sx={{ 
-            backgroundColor: headerColor, 
-            p: 2, 
-            color: 'white', 
-            // Ajustamos borderRadius para dispositivos móviles y escritorio
-            borderRadius: { xs: '8px 8px 0 0', sm: '8px 0 0 8px' }, 
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}>
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-              {name}
-            </Typography>
+          <Box 
+            sx={{ 
+              backgroundColor: '#3f51b5',
+              p: 3,
+              color: 'white',
+              borderRadius: { xs: '12px 12px 0 0', sm: '12px 0 0 12px' },
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             <Box
               component="img"
-              src={imageSrc}
-              alt={`Tutor ${name}`}
-              sx={{ 
-                width: 120, 
-                height: 120, 
-                borderRadius: '50%', 
-                objectFit: 'cover', 
-                mt: 1,
-                border: '4px solid white', 
+              src={img}
+              alt="Tutor"
+              sx={{
+                width: 180,
+                height: 180,
+                objectFit: 'cover',
+                border: '5px solid white',
+                borderRadius: '10px',
+                mb: 1
               }}
             />
           </Box>
         </Grid>
 
-        {/* Columna del Contenido del Curso */}
+        {/* Información */}
         <Grid item xs={12} sm={8}>
-          <CardContent>
-            <Box 
-              sx={{ 
-                backgroundColor: '#3f51b5', 
-                color: 'white', 
-                p: 1, 
-                borderRadius: 1, 
-                display: 'inline-block', 
-                mb: 1 
-              }}
-            >
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                {nombreTutoria}
-              </Typography>
-            </Box>
-            
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {descripcion}
+          <CardContent sx={{ p: 3 }}>
+
+            <Typography variant="h5" fontWeight="bold" color="#3f51b5" sx={{ mb: 1.5 }}>
+              {tutoria.nombre_tutoria}
             </Typography>
 
-            <Link href="#" underline="hover" color="primary" variant="body2" sx={{ display: 'block', mt: 1 }}>
-              Portfolio →
-            </Link>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {tutoria.descripcion}
+            </Typography>
 
-            {/* Estrellas, Precio Y BOTÓN */}
-            <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                mt: 2 
-            }}>
-              {/* Sección Izquierda: Rating y Precio */}
-              <Box>
-                  <Rating name="read-only" value={3.5} precision={0.5} readOnly size="small" />
-                  <Typography variant="h6" color="text.primary" sx={{ fontWeight: 'bold' }}>
-                    {costo} Bs
-                  </Typography>
-              </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
               
-              {/* Sección Derecha: Botón Paralelos */}
+              <Box>
+                <Rating name="read-only" value={4.0} precision={0.5} readOnly />
+                <Typography variant="h6" fontWeight="bold">
+                  {tutoria.costo} Bs
+                </Typography>
+              </Box>
+
               <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={handleParalelosClick} 
-                sx={{ ml: 2 }} 
+                variant="contained"
+                size="large"
+                onClick={handleParalelosClick}
+                sx={{
+                  backgroundColor: '#9372f7',
+                  '&:hover': { backgroundColor: '#7e60df' }
+                }}
               >
-                Paralelos
+                Ver Paralelos
               </Button>
+
             </Box>
+
           </CardContent>
         </Grid>
+
       </Grid>
     </Card>
   );

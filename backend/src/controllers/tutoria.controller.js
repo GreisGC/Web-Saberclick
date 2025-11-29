@@ -93,7 +93,7 @@ const createTutoria = async (req, res, next) => {
 				.json({ message: "Ya existe una tutoría con ese nombre" });
 		}
 
-		// 🧾 Crear la nueva tutoría asociada a la institución
+		// Crear la nueva tutoría asociada a la institución
 		const tutoriaResult = await client.query(
 			`INSERT INTO tutoria (costo, nombre_tutoria, descripcion, id_institucion)
        VALUES ($1, $2, $3, $4)

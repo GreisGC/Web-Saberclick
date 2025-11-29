@@ -216,6 +216,15 @@ function FormGerente() {
                 {...inputBaseProps}
               />
             </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography sx={{ mb: 1 }}>Password:</Typography>
+              <TextField
+                name="password"
+                value={gerente.password}
+                onChange={handleChange}
+                {...inputBaseProps}
+              />
+            </Grid>
 
           </Grid>
 

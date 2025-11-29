@@ -23,15 +23,16 @@ import logo1 from "../assets/logo1.png";
 import defaultCardImage from "../assets/pensador_2.jpeg"; 
 
 const API_URL = "http://localhost:4000"; 
-
+const PRIMARY_BLUE = "#1976d2"; // Color principal para títulos y botones
 
 const Home = () => {
+    // --- FUNCIONALIDAD (NO TOCADA) ---
     const [institutions, setInstitutions] = useState([]);
     const { sesion, setInstitucionI } = useContext(SesionContext);
     const navigate = useNavigate();
     
     const [scrollY, setScrollY] = useState(0);
-	
+    
     useEffect(() => {
         const handleScroll = () => {
             setScrollY(window.scrollY);
@@ -58,8 +59,8 @@ const Home = () => {
 
         fetchInstitutions();
     }, []);
-
    
+    // --- CÁLCULOS DE ESTILO DE SCROLL  ---
     const centerScale = Math.max(0.40, 1 - scrollY * 0.0020);
     const sideOpacity = Math.min(1, (1 - centerScale) * 1.8);
     const sideTranslateX = Math.max(0, (1 - centerScale) * 100); 
@@ -68,7 +69,8 @@ const Home = () => {
     return (
         <Box
             sx={{
-                bgcolor: "#2e7d32", 
+                
+                bgcolor: PRIMARY_BLUE, 
                 color: "#333",
                 minHeight: "100vh",
                 width: "100%",
@@ -81,7 +83,6 @@ const Home = () => {
                 <Navbar />
             </Box>
 
-           
             <Box
                 sx={{
                     position: "relative",
@@ -110,7 +111,7 @@ const Home = () => {
                     }}
                 />
                 
-                
+                {/* IMAGEN LATERAL IZQUIERDA */}
                 <Box
                     sx={{
                         position: "absolute",
@@ -128,7 +129,7 @@ const Home = () => {
                     }}
                 />
 
-                {/*IMAGEN (FONDO) */}
+                {/* IMAGEN LATERAL DERECHA */}
                 <Box
                     sx={{
                         position: "absolute",
@@ -146,7 +147,7 @@ const Home = () => {
                     }}
                 />
 
-                {/*IMAGEN CENTRAL  */}
+                {/* IMAGEN CENTRAL */}
                 <Box
                     sx={{
                         position: "absolute",
@@ -168,7 +169,7 @@ const Home = () => {
                     <Box sx={{ position: "absolute", width: "100%", height: "100%", bgcolor: "rgba(0,0,0,0.4)" }} />
                 </Box>
 
-                {/* (TEXTO Y BOTONES SOBRE LA IMAGEN) */}
+                {/* TEXTO Y BOTONES SOBRE LA IMAGEN */}
                 <Container 
                     maxWidth="xl" 
                     sx={{ 
@@ -275,49 +276,52 @@ const Home = () => {
 
            
 
-            {/*SECCIÓN INSTITUCIONES */}
+            {/* SECCIÓN INSTITUCIONES (REDESIGN) */}
             <Box
                 sx={{
-                    bgcolor: "#f5f5f5",
-                    pt: 4, 
+                    bgcolor: "#ffffff", // Fondo blanco
+                    pt: 8, 
                     pb: 10,
                     borderTopLeftRadius: "60px",
                     borderTopRightRadius: "60px",
                     position: "relative",
                     zIndex: 20, 
-                    mt: -5, 
+                    mt: { xs: -5, md: -10 }, 
                 }}
             >
                 <Container maxWidth="lg" sx={{ 
                     position: "relative", 
                     zIndex: 20, 
-                    mt: 8 
+                    mt: 4 
                 }}>
+                    
+                    {/* TÍTULO SABER CLICK */}
                     <Typography
-                        variant="h4"
+                        variant="h5"
                         component="h2"
                         align="center"
                         fontWeight="bold"
-                        color="#333" 
-                        sx={{ mb: 1 }}
+                        color={PRIMARY_BLUE} 
+                        sx={{ mb: 1, letterSpacing: '2px', textTransform: 'uppercase' }}
                     >
                         Saber Click
                     </Typography>
 
+                    {/* TÍTULO INSTITUCIONES */}
                     <Typography
-                        variant="h5"
+                        variant="h3"
                         component="h2"
-                        align="left"
-                        fontWeight="bold"
+                        align="center"
+                        fontWeight="extrabold"
                         color="#333"
-                        sx={{ mb: 4 }} 
+                        sx={{ mb: 6 }} 
                     >
-                        Instituciones
+                        Nuestras Instituciones Afiliadas
                     </Typography>
                 </Container>
 
                 <Container maxWidth="lg">
-                    {/* AJUSTE DE GRID PARA 3 CARDS POR FILA Y MISMA ALTURA */}
+                    
                     <Grid 
                         container 
                         spacing={4} 
@@ -326,38 +330,44 @@ const Home = () => {
                     >
                         {/* ITERACIÓN CON DATOS REALES */}
                         {institutions.map((inst) => (
-                            //  md={4}: 12 / 4 = 3 tarjetas por fila en escritorio
+                            
                             <Grid item key={inst.id_institucion} xs={12} sm={6} md={4}> 
                                 <Card
                                     sx={{
                                         height: "100%", 
-                                        minHeight: 380, 
                                         display: "flex",
                                         flexDirection: "column",
                                         justifyContent: "space-between", 
                                         borderRadius: "16px",
-                                        boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                                        p: 2,
-                                        transition: "transform 0.2s",
+                                        boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                                        p: 3, 
+                                        transition: "transform 0.3s, box-shadow 0.3s",
                                         "&:hover": { 
-                                            transform: "translateY(-5px)" 
+                                            transform: "translateY(-8px)",
+                                            boxShadow: "0 15px 40px rgba(0,0,0,0.25)",
                                         }
                                     }}
                                 >
-                                    <Typography variant="h6" align="center" fontWeight="bold">
+                                    <Typography 
+                                        variant="h6" 
+                                        align="center" 
+                                        fontWeight="bold"
+                                        color="#333"
+                                        sx={{ mb: 2 }}
+                                    >
                                         {inst.nombre_institucion} 
                                     </Typography>
                                     
-                                    {/* IMAGEN POR DEFECTO */}
+                                    {/* IMAGEN */}
                                     <Box 
                                         component="img"
                                         src={defaultCardImage} 
                                         alt={`Logo de ${inst.nombre_institucion}`}
                                         sx={{ 
-                                            height: 140, 
+                                            height: 160, 
                                             width: '100%',
                                             objectFit: 'cover', 
-                                            borderRadius: "8px", 
+                                            borderRadius: "10px", 
                                             mb: 2,
                                             mt: 1 
                                         }}
@@ -369,46 +379,56 @@ const Home = () => {
                                             color="text.secondary" 
                                             align="center"
                                             sx={{
+                                                
+                                                height: '6em', 
+                                                lineHeight: '1.5em',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 display: '-webkit-box',
-                                                WebkitLineClamp: 3, 
+                                                WebkitLineClamp: 4, 
                                                 WebkitBoxOrient: 'vertical',
-                                                minHeight: '4.5em' 
+                                                mb: 2, 
                                             }}
                                         >
                                             {inst.descripcion}
                                         </Typography>
                                     </CardContent>
                                     
-                                    <CardActions sx={{ justifyContent: "center" }}>
+                                    {/* Botón */}
+                                    <CardActions sx={{ justifyContent: "center", pt: 1 }}>
                                         <Button
-                                            variant="outlined"
+                                            variant="contained"
                                             onClick={() => {
-												setInstitucionI({
-													id_institucion:inst.id_institucion,
-													nombre_institucion:inst.nombre_institucion,
-													descripcion:inst.descripcion })
-												navigate(`/TutoriasHome`,
-												{ 
-                                                    state: { 
-                                                        id: inst.id_institucion,
-                                                        nombre: inst.nombre_institucion,
-														descripcion:inst.descripcion 
-                                                    } 
+                                                setInstitucionI({
+                                                id_institucion: inst.id_institucion,
+                                                nombre_institucion: inst.nombre_institucion,
+                                                descripcion: inst.descripcion
+                                                });
+
+                                                navigate("/TutoriasHome", {
+                                                state: {
+                                                    id: inst.id_institucion,
+                                                    nombre: inst.nombre_institucion,
+                                                    descripcion: inst.descripcion
                                                 }
-											)}}
-                                            sx={{
-                                                color: "#ff9800",
-                                                borderColor: "#ff9800",
-                                                borderRadius: "20px",
-                                                px: 4,
-                                                textTransform: "none",
-                                                fontWeight: "bold",
+                                                });
                                             }}
-                                        >
-                                            Tutorías
+                                            sx={{
+                                                bgcolor: PRIMARY_BLUE,
+                                                color: "#fff",
+                                                borderRadius: "8px",
+                                                px: 4,
+                                                py: 1,
+                                                textTransform: "uppercase",
+                                                fontWeight: "bold",
+                                                "&:hover": {
+                                                bgcolor: "#1565c0"
+                                                }
+                                            }}
+                                            >
+                                            Ver Tutorías
                                         </Button>
+
                                     </CardActions>
                                 </Card>
                             </Grid>
