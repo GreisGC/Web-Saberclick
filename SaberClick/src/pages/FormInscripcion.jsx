@@ -10,11 +10,17 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import GetSesion from "../tools/GetSesion";
 
 function FormInscripcion() {
   const location = useLocation();
   //  Desestructurar inscripcionData del state 
   const { inscripcionData } = location.state || {}; 
+  const [estudianteData,setEstudianteData]=useState({
+    nombre:"",
+    paterno:"",
+    materno:""
+  })
 
   const [inscripcion, setInscripcion] = useState({
     nombre_tutoria: "",
@@ -82,7 +88,9 @@ function FormInscripcion() {
         // CREAR NUEVA (POST)
         url = "http://localhost:4000/inscripcion";
         method = "POST";
-
+        payload.nombre_estudiante=estudianteData.nombre;
+        payload.paterno_estudiante=estudianteData.paterno;
+        payload.materno_estudiante=estudianteData.materno;
         res = await fetch(url, {
           method,
           body: JSON.stringify(payload),
@@ -123,6 +131,37 @@ function FormInscripcion() {
     }
   };
 
+  const getEstudiante= async()=>{
+    try{
+
+      const sesion=GetSesion();
+      if(!sesion){
+        console.log("No hay sesion del estudiante")
+      }
+    
+      const url=`http://localhost:4000/estudiante/${sesion.id}`;
+
+      const requestOptions = {
+        method: "GET",
+        redirect: "follow"
+      };
+
+      const res=await fetch(url,requestOptions);
+      const data= await res.json();
+      setEstudianteData({
+        materno:data.materno,
+        paterno:data.paterno,
+        nombre:data.nombre
+      })
+      return data
+
+      
+    }catch(error){
+      console.log(error);
+      return null
+    }
+  }
+
   const handleChange = (e) =>
     setInscripcion({ ...inscripcion, [e.target.name]: e.target.value });
 
@@ -158,6 +197,8 @@ function FormInscripcion() {
   };
 
  useEffect(() => {
+    getEstudiante();
+
     // Si estamos en modo edición (hay params.id), cargamos los datos
     if (params.id) {
       loadParalelo(params.id);
@@ -201,14 +242,15 @@ function FormInscripcion() {
   };
 
 
-  const allFieldsFilled = (() => {
+  const allFieldsFilled = (async () => {
     // Campos de Inscripción que se auto-completan (fecha/hora) o se llenan en edición (notas/intentos)
     const requiredCreationInscripcionFields = [
         inscripcion.fecha_inscripcion,
         inscripcion.hora_inscripcion,
     ];
+
     
-  
+    
 
     if (editing) {
       // En modo edición, valida fecha/hora + notas/intentos
@@ -233,9 +275,12 @@ function FormInscripcion() {
         inscripcion.materno_tutor,
       
         // Campos del estudiante (Estos deben ser llenados por el usuario)
-        inscripcion.nombre_estudiante,
-        inscripcion.paterno_estudiante,
-        inscripcion.materno_estudiante,
+        //inscripcion.nombre_estudiante,
+        estudiante.nombre,
+        //inscripcion.paterno_estudiante,
+        estudiante.paterno,
+        //inscripcion.materno_estudiante,
+        estudiante.materno,
        
         // Fecha y hora de inscripción (auto-completados)
         ...requiredCreationInscripcionFields
@@ -307,7 +352,7 @@ function FormInscripcion() {
                   <Typography sx={{ mb: 1 }}>Nombre Estudiante:</Typography>
                   <TextField
                     name="nombre_estudiante"
-                    value={inscripcion.nombre_estudiante}
+                    value={estudianteData.nombre}
                     onChange={handleChange}
                     {...inputBaseProps}
                   />
@@ -317,7 +362,7 @@ function FormInscripcion() {
                   <Typography sx={{ mb: 1 }}>Apellido Paterno:</Typography>
                   <TextField
                     name="paterno_estudiante"
-                    value={inscripcion.paterno_estudiante}
+                    value={estudianteData.paterno}
                     onChange={handleChange}
                     {...inputBaseProps}
                   />
@@ -326,7 +371,7 @@ function FormInscripcion() {
                   <Typography sx={{ mb: 1 }}>Apellido Materno:</Typography>
                   <TextField
                     name="materno_estudiante"
-                    value={inscripcion.materno_estudiante}
+                    value={estudianteData.materno}
                     onChange={handleChange}
                     {...inputBaseProps}
                   />

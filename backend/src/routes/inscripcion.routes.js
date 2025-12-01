@@ -9,9 +9,11 @@ const {
 	updateInscripcion,
 	createInscripcion2,
 	updateNroIntento,
+	getAllInscripcionByEstudiante,
 } = require("../controllers/inscripcion.controller");
 
 router.get("/inscripcion", getAllInscripcion);
+router.get("/getAllInscripcionByEstudiante/:id_estudiante", getAllInscripcionByEstudiante);
 router.get("/inscripcion/:id", getInscripcion);
 router.post("/inscripcion", createInscripcion);
 router.post("/getinscripcion", createInscripcion2);

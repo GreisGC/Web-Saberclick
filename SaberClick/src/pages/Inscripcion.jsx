@@ -4,6 +4,7 @@ import UsuarioNav from './UsuarioNav';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography,
 } from "@mui/material";
+import GetSesion from "../tools/GetSesion";
 
 function Inscripcion() {
   const [inscripcion, setInscripcion] = useState([]);
@@ -22,7 +23,14 @@ function Inscripcion() {
 
   const loadParalelo = async () => {
     try {
-      const response = await fetch("http://localhost:4000/inscripcion");
+
+      const sesion=GetSesion();
+      let url=`http://localhost:4000/inscripcion`;
+      
+      if(sesion && sesion.rol=="estudiante"){
+        url=`http://localhost:4000/getAllInscripcionByEstudiante/${sesion.id}`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
       setInscripcion(data); 
     } catch (error) {

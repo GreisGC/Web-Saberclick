@@ -26,6 +26,7 @@ import ClassIcon from '@mui/icons-material/Class'; // Nuevo icono para paralelo
 import PersonIcon from '@mui/icons-material/Person'; // Nuevo icono para tutor
 import img from '../../../assets/pensador_lentes.jpeg'
 import { useNavigate } from "react-router-dom";
+import GetSesion from "../../../tools/GetSesion";
 
 // Función de formato de fecha sin cambios
 const formatDate = (fecha) => {
@@ -64,9 +65,14 @@ const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
 
     const fetchParalelos = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:4000/paraleloPorTutoria/${id_tutoria}`
-        );
+        const sesion=GetSesion();
+        let url=`http://localhost:4000/paraleloPorTutoria/${id_tutoria}`;
+      
+        if(sesion && sesion.rol=="estudiante"){
+          url=`http://localhost:4000/getParaleloPorTutoriaByEstudiante/${sesion.id}/${id_tutoria}`;
+        }
+
+        const res = await fetch(url);
         const data = await res.json();
         setParalelos(data);
 
@@ -289,6 +295,8 @@ const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
                     xs={12}
                     sx={{ mt: 2, textAlign: 'center' }}
                   >
+                    {!data.id_estudiante?
+
                     <Button
                       variant="contained"
                       size="large"
@@ -296,7 +304,11 @@ const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
                       sx={{ minWidth: 200, py: 1.5 }}
                     >
                       Inscribirme a este Paralelo
+                    </Button>:
+                    <Button color="success">
+                      Ver inscripcion
                     </Button>
+                    }
                   </Grid>
 
                 </Grid>

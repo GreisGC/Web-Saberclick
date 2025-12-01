@@ -54,7 +54,23 @@ const getParaleloPorTutoria = async (req, res, next) => {
   }
 };
 
+const getParaleloPorTutoriaByEstudiante = async (req, res, next) => {
+  try {
+    const { id_estudiante,id_tutoria } = req.params;
 
+    const result = await pool.query(
+      `
+        SELECT p.*, i.id_estudiante FROM paralelo p
+        LEFT JOIN inscripcion i ON i.id_paralelo = p.id_paralelo AND i.id_estudiante = $1
+        WHERE p.id_tutoria = $2 AND p.estado = 'Habilitado'`,
+      [id_estudiante,id_tutoria]
+    );
+
+    return res.json(result.rows); // ← siempre devuelve array (aunque vacío)
+  } catch (error) {
+    next(error);
+  }
+};
 
 const getTutorPorParalelo = async (req, res, next) => {
   try {
@@ -269,5 +285,6 @@ module.exports = {
     createParalelo,
     deleteParalelo,
     updateParalelo,
-	getAllParaleloByTutor
+	getAllParaleloByTutor,
+  getParaleloPorTutoriaByEstudiante
 }

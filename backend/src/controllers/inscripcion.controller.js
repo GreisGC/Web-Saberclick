@@ -10,6 +10,16 @@ const getAllInscripcion = async (req, res, next) => {
   }
 };
 
+const getAllInscripcionByEstudiante = async (req, res, next) => {
+  try {
+	const {id_estudiante}=req.params;
+    const allPago = await pool.query("SELECT * FROM inscripcion WHERE estado = 'Habilitado' AND id_estudiante = $1",[id_estudiante]);
+    res.json(allPago.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Obtener Inscripcion por ID
 const getInscripcion = async (req, res, next) => {
   try {
@@ -416,5 +426,6 @@ module.exports = {
   deleteInscripcion,
   updateInscripcion,
   createInscripcion2,
-  updateNroIntento
+  updateNroIntento,
+  getAllInscripcionByEstudiante
 };
