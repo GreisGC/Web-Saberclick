@@ -9,6 +9,16 @@ const getAllInstitucion = async(req, res, next) =>{
     }
 };
 
+const getAllInstitucionByGerente = async(req, res, next) =>{
+    try{
+		const {id_gerente}=req.params
+        const allInstitucion = await pool.query("SELECT * FROM institucion WHERE estado = 'Habilitado' AND id_gerente= $1",[id_gerente]);
+        res.json(allInstitucion.rows);
+    }catch(error){
+        next(error);
+    }
+};
+
 const getInstitucion = async(req, res, next) =>{
     
     try{
@@ -204,5 +214,6 @@ module.exports = {
     getInstitucion,
     createInstitucion,
     deleteInstitucion,
-    updateInstitucion
+    updateInstitucion,
+	getAllInstitucionByGerente
 }

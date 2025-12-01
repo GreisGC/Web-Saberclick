@@ -9,6 +9,17 @@ const getAllParalelo = async(req, res, next) =>{
     }
 };
 
+const getAllParaleloByTutor = async(req, res, next) =>{
+    try{
+		const {id_tutor}=req.params;
+        const allParalelo = await pool.query(`SELECT * FROM paralelo 
+			WHERE estado = 'Habilitado' AND id_tutor = $1`,[id_tutor]);
+        res.json(allParalelo.rows);
+    }catch(error){
+        next(error);
+    }
+};
+
 const getParalelo = async(req, res, next) =>{
     
     try{
@@ -257,5 +268,6 @@ module.exports = {
     getTutorPorParalelo,
     createParalelo,
     deleteParalelo,
-    updateParalelo
+    updateParalelo,
+	getAllParaleloByTutor
 }
