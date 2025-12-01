@@ -10,16 +10,14 @@ const {
     getAllTutor,
     getTutor,
     createTutor,
-    updateTutor
+    updateTutor,
+    deleteTutor,
 } = require('../controllers/tutor.controller');
 
 router.get('/tutor', getAllTutor);
 router.get('/tutor/:id', getTutor);
-
-// 👉 Aquí permitimos subir el PDF del cv
+router.delete('/tutor/:id', deleteTutor);
 router.post('/tutor', upload.single('cv'), createTutor);
-
-// 👉 También permitimos subir un nuevo pdf en la actualización
 router.put('/tutor/:id', upload.single('cv'), updateTutor);
 
 module.exports = router;

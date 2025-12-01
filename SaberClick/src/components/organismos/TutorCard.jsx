@@ -1,20 +1,24 @@
 import { Card, CardContent, Typography, Grid, Box, Rating, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
 import img from '../../assets/mujer.jpeg';
 
-function TutorCard({ tutoria }) {
+function TutorCard({ tutoria, nombreInstitucion }) {
   const navigate = useNavigate();
 
   const handleParalelosClick = () => {
     navigate("/ParaleloHome", {
       state: {
-        id: tutoria.id_tutoria,
-        nombre: tutoria.nombre_tutoria,
-        descripcion: tutoria.descripcion,
-        costo:tutoria.costo
+         id: tutoria.id_tutoria,
+         nombre: tutoria.nombre_tutoria,
+         descripcion: tutoria.descripcion,
+         costo: tutoria.costo,
+         idInstitucion: tutoria.id_institucion
+       
       }
     });
   };
+
 
   return (
     <Card 

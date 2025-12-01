@@ -6,10 +6,13 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 function TutorForm() {
+  const { id } = useParams(); // Detectar si estamos editando
+  const [loading, setLoading] = useState(false);
+
   const [tutor, settutor] = useState({
     nombre: "",
     paterno: "",
@@ -19,29 +22,91 @@ function TutorForm() {
     fecha_naci: "",
     especialidad: "",
     anos_experiencia: "",
-    cv: null, // PDF en Base64
+    password: "",
+    cv: null,
   });
 
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Maneja los cambios de texto
+  // cargar tutor si estamos editando
+  useEffect(() => {
+    if (!id) return;
+
+    const loadTutor = async () => {
+      try {
+        const res = await fetch(`http://localhost:4000/tutor/${id}`);
+        const data = await res.json();
+
+        settutor({
+          nombre: data.nombre,
+          paterno: data.paterno,
+          materno: data.materno,
+          correo: data.correo,
+          celular: data.celular,
+          fecha_naci: data.fecha_naci?.slice(0, 10),
+          especialidad: data.especialidad,
+          anos_experiencia: data.anos_experiencia,
+          password: "",
+          cv: null, // solo si carga nuevo
+        });
+      } catch (error) {
+        console.error("Error cargando tutor:", error);
+      }
+    };
+
+    loadTutor();
+  }, [id]);
+
+  // manejar texto
   const handleChange = (e) => {
     settutor({ ...tutor, [e.target.name]: e.target.value });
   };
 
-  // Maneja el archivo PDF y lo convierte a Base64
+  // manejar archivo PDF
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result.split(",")[1]; // solo la parte Base64
-      settutor({ ...tutor, cv: base64String });
-    };
-    reader.readAsDataURL(file);
+    settutor({ ...tutor, cv: e.target.files[0] });
   };
+
+  // enviar formulario (POST o PUT)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const formData = new FormData();
+
+    Object.keys(tutor).forEach((key) => {
+      if (tutor[key] !== null && tutor[key] !== "") {
+        formData.append(key, tutor[key]);
+      }
+    });
+
+    let url = "http://localhost:4000/tutor";
+    let method = "POST";
+
+    if (id) {
+      url = `http://localhost:4000/tutor/${id}`;
+      method = "PUT";
+    }
+
+    const res = await fetch(url, {
+      method,
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log("Respuesta:", data);
+
+    // Redirigir a la lista de tutores después de crear o editar
+    navigate("/tutor");
+
+  } catch (error) {
+    console.error("Error guardando:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const inputBaseProps = {
     InputProps: {
@@ -62,32 +127,6 @@ function TutorForm() {
     fullWidth: true,
   };
 
-  // Validación dinámica
-  const allFieldsFilled =
-    Object.values(tutor).slice(0, 8).every((v) => v !== "") && tutor.cv;
-
-  // Enviar formulario
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const res = await fetch("http://localhost:4000/tutor", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tutor),
-      });
-
-      const data = await res.json();
-      console.log("Respuesta del servidor:", data);
-      navigate("/usuarios");
-    } catch (error) {
-      console.error("Error al guardar tutor:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <Grid
       container
@@ -102,110 +141,155 @@ function TutorForm() {
           backgroundColor: "#1e272e",
           color: "white",
           borderRadius: "1rem",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.4)",
           padding: { xs: "1.5rem", md: "3rem" },
         }}
       >
-        <Typography variant="h5" gutterBottom sx={{ textAlign: "center", mb: 3 }}>
-          Crear Usuario Tutor
+        <Typography variant="h5" sx={{ textAlign: "center", mb: 3 }}>
+          {id ? "Editar Tutor" : "Crear Tutor"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
           {/* Fila 1 */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
-              <Typography sx={{ mb: 1 }}>Nombres:</Typography>
-              <TextField name="nombre" onChange={handleChange} {...inputBaseProps} />
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <Typography sx={{ mb: 1 }}>Apellido Paterno:</Typography>
-              <TextField name="paterno" onChange={handleChange} {...inputBaseProps} />
-            </Grid>
-
-            <Grid item xs={12} sm={2}>
-              <Typography sx={{ mb: 1 }}>Apellido Materno:</Typography>
-              <TextField name="materno" onChange={handleChange} {...inputBaseProps} />
-            </Grid>
-
-            <Grid item xs={12} sm={2}>
-              <Typography sx={{ mb: 1 }}>Fecha de Nacimiento:</Typography>
+              <Typography>Nombres:</Typography>
               <TextField
-                type="date"
-                name="fecha_naci"
+                name="nombre"
+                value={tutor.nombre}
                 onChange={handleChange}
                 {...inputBaseProps}
-                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <Typography>Apellido Paterno:</Typography>
+              <TextField
+                name="paterno"
+                value={tutor.paterno}
+                onChange={handleChange}
+                {...inputBaseProps}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <Typography>Apellido Materno:</Typography>
+              <TextField
+                name="materno"
+                value={tutor.materno}
+                onChange={handleChange}
+                {...inputBaseProps}
               />
             </Grid>
           </Grid>
 
           {/* Fila 2 */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={8}>
-              <Typography sx={{ mb: 1 }}>Correo Electrónico:</Typography>
-              <TextField name="correo" onChange={handleChange} {...inputBaseProps} />
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <Typography sx={{ mb: 1 }}>Celular:</Typography>
-              <TextField name="celular" onChange={handleChange} {...inputBaseProps} />
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography>Correo Electrónico:</Typography>
+              <TextField
+                name="correo"
+                value={tutor.correo}
+                onChange={handleChange}
+                {...inputBaseProps}
+              />
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <Typography sx={{ mb: 1 }}>Especialidad:</Typography>
-              <TextField name="especialidad" onChange={handleChange} {...inputBaseProps} />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Typography sx={{ mb: 1 }}>Años de Experiencia:</Typography>
-              <TextField name="anos_experiencia" onChange={handleChange} {...inputBaseProps} />
-            </Grid>
-          </Grid>
-
-          {/* Fila 3: CV */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12}>
-              <Typography sx={{ mb: 1 }}>Currículum (PDF):</Typography>
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  backgroundColor: "#2f3640",
-                  color: "white",
-                  border: "none",
-                }}
+              <Typography>Celular:</Typography>
+              <TextField
+                name="celular"
+                value={tutor.celular}
+                onChange={handleChange}
+                {...inputBaseProps}
               />
             </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-              <Typography sx={{ mb: 1 }}>Password:</Typography>
-              <TextField name="password" onChange={handleChange} {...inputBaseProps} />
+
+          {/* Fila 3 */}
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Typography>Fecha de Nacimiento:</Typography>
+              <TextField
+                type="date"
+                name="fecha_naci"
+                value={tutor.fecha_naci}
+                onChange={handleChange}
+                {...inputBaseProps}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
-        
+
+            <Grid item xs={12} sm={4}>
+              <Typography>Especialidad:</Typography>
+              <TextField
+                name="especialidad"
+                value={tutor.especialidad}
+                onChange={handleChange}
+                {...inputBaseProps}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <Typography>Años de Experiencia:</Typography>
+              <TextField
+                name="anos_experiencia"
+                value={tutor.anos_experiencia}
+                onChange={handleChange}
+                {...inputBaseProps}
+              />
+            </Grid>
+          </Grid>
+
+          {/* PDF */}
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <Typography>Currículum (PDF):</Typography>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                backgroundColor: "#2f3640",
+                color: "white",
+              }}
+            />
+          </Grid>
+
+          {/* Password solo en creación */}
+          {!id && (
+            <Grid item xs={12} sm={6} sx={{ mt: 2 }}>
+              <Typography>Password:</Typography>
+              <TextField
+                name="password"
+                value={tutor.password}
+                onChange={handleChange}
+                {...inputBaseProps}
+              />
+            </Grid>
+          )}
+
           {/* Botón */}
           <Grid container justifyContent="center">
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                disabled={!allFieldsFilled || loading}
-                sx={{
-                  width: { xs: "70vw", sm: "300px" },
-                  fontSize: "1rem",
-                  paddingY: 1.4,
-                  borderRadius: "8px",
-                  mt: 2,
-                }}
-              >
-                {loading ? <CircularProgress color="inherit" size={22} /> : "Guardar"}
-              </Button>
-            </Grid>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              sx={{
+                width: { xs: "70vw", sm: "300px" },
+                fontSize: "1rem",
+                mt: 3,
+              }}
+            >
+              {loading ? (
+                <CircularProgress color="inherit" size={22} />
+              ) : id ? (
+                "Guardar Cambios"
+              ) : (
+                "Crear Tutor"
+              )}
+            </Button>
           </Grid>
         </form>
       </Card>
@@ -214,4 +298,3 @@ function TutorForm() {
 }
 
 export default TutorForm;
-

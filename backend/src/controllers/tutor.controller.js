@@ -141,80 +141,109 @@ const createTutor = async (req, res, next) => {
 };
 
 // Actualizar Tutor
+// Actualizar Tutor (solo update)
 const updateTutor = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { 
-            paterno,
-            materno,  
-            nombre,
-            correo,
-            celular,
-            fecha_naci,
-            especialidad,
-            anos_experiencia,
-        } = req.body;
+  try {
+    const { id } = req.params;
+    const { paterno, materno, nombre, correo, celular, fecha_naci, especialidad, anos_experiencia } = req.body;
 
-        await pool.query("BEGIN");
+    await pool.query("BEGIN");
 
-        // Obtener id_usuario
-        const tutorResult = await pool.query(
-            "SELECT id_usuario FROM tutor WHERE id_tutor = $1",
-            [id]
-        );
+    // Obtener id_usuario y CV actual
+    const tutorResult = await pool.query(
+      "SELECT id_usuario, cv FROM tutor WHERE id_tutor = $1",
+      [id]
+    );
 
-        if (tutorResult.rows.length === 0) {
-            await pool.query("ROLLBACK");
-            return res.status(404).json({ message: "Tutor no encontrado" });
-        }
-
-        const id_usuario = tutorResult.rows[0].id_usuario;
-
-        // Actualizar usuario
-        await pool.query(
-            `UPDATE usuario 
-             SET nombre=$1, paterno=$2, materno=$3, correo=$4, celular=$5, fecha_naci=$6
-             WHERE id_usuario = $7`,
-            [nombre, paterno, materno, correo, celular, fecha_naci, id_usuario]
-        );
-
-        let cvUrl = null;
-
-        // Si envía un nuevo PDF, reemplazarlo
-        if (req.file) {
-            const pdfPath = savePdf(req.file);
-            cvUrl = `http://localhost:7001/${pdfPath.replace('./', '')}`;
-        }
-
-        const updatedTutor = await pool.query(
-            `UPDATE tutor
-             SET especialidad = $1,
-                 anos_experiencia = $2,
-                 cv = COALESCE($3, cv)
-             WHERE id_tutor = $4
-             RETURNING *`,
-            [especialidad, anos_experiencia, cvUrl, id]
-        );
-
-        await pool.query("COMMIT");
-
-        res.status(200).json({
-            message: "Tutor actualizado correctamente",
-            tutor: updatedTutor.rows[0]
-        });
-
-    } catch (error) {
-        await pool.query("ROLLBACK");
-        console.error("Error al actualizar Tutor:", error.message);
-        next(error);
+    if (tutorResult.rows.length === 0) {
+      await pool.query("ROLLBACK");
+      return res.status(404).json({ message: "Tutor no encontrado" });
     }
+
+    const id_usuario = tutorResult.rows[0].id_usuario;
+    let cvUrl = tutorResult.rows[0].cv; // URL actual
+
+    // Si envía un nuevo PDF, guardarlo y actualizar la URL
+    if (req.file) {
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${req.file.originalname.replace(/\s/g, '-')}`;
+      const newPath = `./upload/${fileName}`;
+
+      // Renombrar y mover archivo
+      const fs = require("fs");
+      fs.renameSync(req.file.path, newPath);
+
+      cvUrl = `http://localhost:4000/upload/${fileName}`;
+    }
+
+    // Actualizar datos de usuario
+    await pool.query(
+      `UPDATE usuario 
+       SET nombre=$1, paterno=$2, materno=$3, correo=$4, celular=$5, fecha_naci=$6 
+       WHERE id_usuario = $7`,
+      [nombre, paterno, materno, correo, celular, fecha_naci, id_usuario]
+    );
+
+    // Actualizar tutor
+    const updatedTutor = await pool.query(
+      `UPDATE tutor
+       SET especialidad=$1, anos_experiencia=$2, cv=$3
+       WHERE id_tutor=$4
+       RETURNING *`,
+      [especialidad, anos_experiencia, cvUrl, id]
+    );
+
+    await pool.query("COMMIT");
+
+    res.status(200).json({
+      message: "Tutor actualizado correctamente",
+      tutor: updatedTutor.rows[0],
+    });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error("Error al actualizar Tutor:", error.message);
+    next(error);
+  }
+};
+
+const deleteTutor = async (req, res, next) => {
+  try {
+    const { id } = req.params; // este "id" es el id_tutor
+
+    // Primero buscamos el tutor para obtener su id_usuario relacionado
+    const tutorResult = await pool.query(
+      "SELECT id_usuario FROM tutor WHERE id_tutor = $1",
+      [id]
+    );
+
+    if (tutorResult.rowCount === 0)
+      return res.status(404).json({ message: "Tutor no encontrado" });
+
+    const idUsuario = tutorResult.rows[0].id_usuario;
+
+    // Deshabilitar tutor
+    await pool.query(
+      "UPDATE tutor SET estado = 'Deshabilitado' WHERE id_tutor = $1",
+      [id]
+    );
+
+    // Deshabilitar usuario relacionado
+    await pool.query(
+      "UPDATE usuario SET estado = 'Deshabilitado' WHERE id_usuario = $1",
+      [idUsuario]
+    );
+
+    res.status(200).json({ message: "Tutor y usuario deshabilitados correctamente" });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
   getAllTutor,
   getTutor,
   createTutor,
-  //deleteTutor,
+  deleteTutor,
   updateTutor
 };
 

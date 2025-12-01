@@ -2,7 +2,7 @@ import { Typography, Box } from '@mui/material';
 import TutorCard from './TutorCard';
 import { useEffect, useState } from 'react';
 
-function TutoresSection({ idInstitucion }) {
+function TutoresSection({ idInstitucion, nombreInstitucion  }) {
   const [tutorias, setTutorias] = useState([]);
 
   useEffect(() => {
@@ -28,7 +28,10 @@ function TutoresSection({ idInstitucion }) {
       </Typography>
 
       {tutorias.map((tutoria) => (
-        <TutorCard key={tutoria.id_tutoria} tutoria={tutoria} />
+        <TutorCard 
+          key={tutoria.id_tutoria} 
+          tutoria={tutoria}
+          nombreInstitucion={nombreInstitucion}/>
       ))}
     </Box>
   );

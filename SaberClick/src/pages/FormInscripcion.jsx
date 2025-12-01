@@ -13,7 +13,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 function FormInscripcion() {
   const location = useLocation();
-  const tutoriaData = location.state?.tutoriaData;
+  //  Desestructurar inscripcionData del state 
+  const { inscripcionData } = location.state || {}; 
 
   const [inscripcion, setInscripcion] = useState({
     nombre_tutoria: "",
@@ -37,18 +38,12 @@ function FormInscripcion() {
     // Campos de Inscripcion que deben enviarse al backend
     fecha_inscripcion: "",
     hora_inscripcion: "",
-    nota1: "",
-    nota2: "",
-    nota3: "",
-    intento1: "",
-    intento2: "",
-    intento3: "",
     
   });
 
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null); // Nuevo estado para mensajes de error
+  const [errorMessage, setErrorMessage] = useState(null); 
   const navigate = useNavigate();
   const params = useParams();
 
@@ -56,26 +51,18 @@ function FormInscripcion() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(null); // Limpiar cualquier mensaje de error anterior
+    setErrorMessage(null); 
 
     try {
       let res;
       let url;
       let method;
 
-      // Definir el cuerpo de la solicitud (payload)
       const payload = editing
         ? {
-            // Solo campos de la Inscripcion para actualización
             fecha_inscripcion: inscripcion.fecha_inscripcion,
             hora_inscripcion: inscripcion.hora_inscripcion,
-            nota1: inscripcion.nota1,
-            nota2: inscripcion.nota2,
-            nota3: inscripcion.nota3,
-            intento1: inscripcion.intento1,
-            intento2: inscripcion.intento2,
-            intento3: inscripcion.intento3,
-    
+          
           }
         : {
             ...inscripcion
@@ -107,7 +94,6 @@ function FormInscripcion() {
         const errorData = await res.json();
         const serverMessage = errorData.message || "Error desconocido en el servidor.";
         
-        // ** Manejo de errores específicos solicitados **
         if (
           serverMessage.includes("Estudiante no existe") ||
           serverMessage.includes("Tutoria no existe") ||
@@ -115,14 +101,11 @@ function FormInscripcion() {
           serverMessage.includes("Paralelo no existe")||
           serverMessage.includes("Tutor no existe")
         ) {
-          // Mostrar el mensaje exacto del backend
           setErrorMessage(serverMessage); 
         } else {
-          // Mostrar un error general si no coincide con los específicos
           setErrorMessage(`Error ${res.status}: ${serverMessage}`);
         }
         
-        // Lanzar el error para que se registre en la consola
         throw new Error(serverMessage);
       }
 
@@ -148,44 +131,56 @@ function FormInscripcion() {
     const data = await res.json();
 
     setInscripcion({
-        nombre_tutoria: "",
-        nombre_institucion:"",
+        nombre_tutoria: data.nombre_tutoria || "", 
+        nombre_institucion: data.nombre_institucion || "",
         
         // Campos del Paralelo
-        nombre_paralelo:"",
-        fecha_ini: "",
-        fecha_fin: "",
-        hora_ini: "",
-        hora_fin: "",
-        dia: "",
+        nombre_paralelo: data.nombre_paralelo || "",
+        fecha_ini: data.fecha_ini || "",
+        fecha_fin: data.fecha_fin || "",
+        hora_ini: data.hora_ini || "",
+        hora_fin: data.hora_fin || "",
+        dia: data.dia || "",
         // Campos del Tutor que deben enviarse al backend
-        nombre_tutor: "",
-        paterno_tutor: "",
-        materno_tutor: "",
+        nombre_tutor: data.nombre_tutor || "",
+        paterno_tutor: data.paterno_tutor || "",
+        materno_tutor: data.materno_tutor || "",
         // Campos del Estudiante que deben enviarse al backend
-        nombre_estudiante: "",
-        paterno_estudiante: "",
-        materno_estudiante: "",
+        nombre_estudiante: data.nombre_estudiante || "",
+        paterno_estudiante: data.paterno_estudiante || "",
+        materno_estudiante: data.materno_estudiante || "",
         // Campos de Inscripcion que deben enviarse al backend
-        fecha_inscripcion: data.fecha_inscripcion,
-        hora_inscripcion: data.hora_inscripcion,
-        nota1: data.nota1,
-        nota2: data.nota2,
-        nota3: data.nota3,
-        intento1: data.intento1,
-        intento2: data.intento2,
-        intento3: data.intento3|| "",
+        fecha_inscripcion: data.fecha_inscripcion || "",
+        hora_inscripcion: data.hora_inscripcion || "",
       
     });
     setEditing(true);
   };
 
-  useEffect(() => {
+ useEffect(() => {
+    // Si estamos en modo edición (hay params.id), cargamos los datos
     if (params.id) {
       loadParalelo(params.id);
+      return;
     }
-  }, [params.id]);
+    
+    // Si estamos en modo creación Y tenemos datos de la navegación
+    if (inscripcionData) {
+      // Usamos el spread operator para llenar los campos de paralelo y tutor
+      setInscripcion(prev => ({ 
+        ...prev, 
+        ...inscripcionData,
+        // Opcional: Auto-completar fecha y hora de inscripción al momento de abrir el form
+        fecha_inscripcion: new Date().toISOString().slice(0, 10), // Fecha actual (YYYY-MM-DD)
+        hora_inscripcion: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), // Hora actual
+      }));
+      
+      console.log("Datos de inscripción cargados para auto-completado:", inscripcionData);
+    }
+    
+  }, [inscripcionData, params.id]); // Asegúrate de incluir inscripcionData en las dependencias
 
+  // Asegurar que el resto del código está dentro de FormInscripcion 
   const inputBaseProps = {
     InputProps: {
       sx: {
@@ -205,28 +200,28 @@ function FormInscripcion() {
     fullWidth: true,
   };
 
+
   const allFieldsFilled = (() => {
-    // Campos requeridos en todos los casos
-    const requiredInscripcionFields = [
+    // Campos de Inscripción que se auto-completan (fecha/hora) o se llenan en edición (notas/intentos)
+    const requiredCreationInscripcionFields = [
         inscripcion.fecha_inscripcion,
         inscripcion.hora_inscripcion,
-        inscripcion.nota1,
-        inscripcion.nota2,
-        inscripcion.nota3,
-        inscripcion.intento1,
-        inscripcion.intento2,
-        inscripcion.intento3,
     ];
+    
+  
 
     if (editing) {
-      // En modo edición, solo valida los campos del Paralelo
-      return requiredInscripcionFields.every(v => v !== "");
+      // En modo edición, valida fecha/hora + notas/intentos
+      return [...requiredCreationInscripcionFields].every(v => v !== "");
     }
     
-    // En modo creación, valida los campos del Paralelo MÁS los de Tutoria e Tutor
+    // En modo creación:
     const requiredCreationFields = [
+        
         inscripcion.nombre_tutoria,
         inscripcion.nombre_institucion,
+        
+        // Campos auto-completados (paralelo, tutor)
         inscripcion.nombre_paralelo,
         inscripcion.fecha_ini,
         inscripcion.fecha_fin,
@@ -237,16 +232,18 @@ function FormInscripcion() {
         inscripcion.paterno_tutor,
         inscripcion.materno_tutor,
       
+        // Campos del estudiante (Estos deben ser llenados por el usuario)
         inscripcion.nombre_estudiante,
         inscripcion.paterno_estudiante,
         inscripcion.materno_estudiante,
        
-        ...requiredInscripcionFields
+        // Fecha y hora de inscripción (auto-completados)
+        ...requiredCreationInscripcionFields
     ];
     
+    // Validamos que todos los campos requeridos en creación estén llenos.
     return requiredCreationFields.every(v => v !== "");
-  })();
- 
+  })(); 
 
   return (
     <Grid
@@ -284,7 +281,7 @@ function FormInscripcion() {
             sx={{
               p: 2,
               mb: 3,
-              backgroundColor: "#ef535020", // Rojo suave
+              backgroundColor: "#ef535020", 
               border: "1px solid #ef5350",
               borderRadius: "4px",
               textAlign: "center"
@@ -313,7 +310,6 @@ function FormInscripcion() {
                     value={inscripcion.nombre_estudiante}
                     onChange={handleChange}
                     {...inputBaseProps}
-                    // Quité el readOnly para que siempre se puedan introducir/modificar estos datos
                   />
                 </Grid>
 
@@ -357,8 +353,8 @@ function FormInscripcion() {
                     {...inputBaseProps}
                     InputProps={{
                       ...inputBaseProps.InputProps,
-                      // Si viene pre-cargada, hacerla de solo lectura
-                      readOnly: !!tutoriaData,
+                      // Hacemos este campo de solo lectura si está pre-cargado
+                      readOnly: !!inscripcionData?.nombre_tutoria,
                     }}
                   />
                 </Grid>
@@ -372,8 +368,7 @@ function FormInscripcion() {
                     {...inputBaseProps}
                     InputProps={{
                       ...inputBaseProps.InputProps,
-                      // Si viene pre-cargada, hacerla de solo lectura
-                      readOnly: !!tutoriaData,
+                      readOnly: editing || !!inscripcionData?.nombre_institucion,
                     }}
                   />
                 </Grid>
@@ -396,6 +391,10 @@ function FormInscripcion() {
                   value={inscripcion.nombre_paralelo}
                   onChange={handleChange}
                   {...inputBaseProps}
+                  InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.nombre_paralelo && !editing, // Solo lectura en creación si se autocompletó
+                    }}
                 />
               </Grid>
 
@@ -406,6 +405,10 @@ function FormInscripcion() {
                   value={inscripcion.fecha_ini}
                   onChange={handleChange}
                   {...inputBaseProps}
+                  InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.fecha_ini && !editing,
+                    }}
                 />
               </Grid>
 
@@ -416,6 +419,10 @@ function FormInscripcion() {
                   value={inscripcion.fecha_fin}
                   onChange={handleChange}
                   {...inputBaseProps}
+                  InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.fecha_fin && !editing,
+                    }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -425,6 +432,10 @@ function FormInscripcion() {
                   value={inscripcion.hora_ini}
                   onChange={handleChange}
                   {...inputBaseProps}
+                  InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.hora_ini && !editing,
+                    }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -434,6 +445,10 @@ function FormInscripcion() {
                   value={inscripcion.hora_fin}
                   onChange={handleChange}
                   {...inputBaseProps}
+                  InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.hora_fin && !editing,
+                    }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -443,13 +458,17 @@ function FormInscripcion() {
                   value={inscripcion.dia}
                   onChange={handleChange}
                   {...inputBaseProps}
+                  InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.dia && !editing,
+                    }}
                 />
               </Grid>
 
             </Grid>
           </Box>
           
-          {/* SECCIÓN TUTOR (solo en creación, o se podría mantener en edición si el backend lo permite) */}
+          {/* SECCIÓN TUTOR (solo en creación) */}
           {!editing && (
             <Box mb={4}>
               <Typography variant="h6" sx={{ mb: 1.5, color: "#90caf9" }}>
@@ -465,7 +484,10 @@ function FormInscripcion() {
                     value={inscripcion.nombre_tutor}
                     onChange={handleChange}
                     {...inputBaseProps}
-                    // Quité el readOnly para que siempre se puedan introducir/modificar estos datos
+                    InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.nombre_tutor,
+                    }}
                   />
                 </Grid>
 
@@ -476,6 +498,10 @@ function FormInscripcion() {
                     value={inscripcion.paterno_tutor}
                     onChange={handleChange}
                     {...inputBaseProps}
+                    InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.paterno_tutor,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -485,6 +511,10 @@ function FormInscripcion() {
                     value={inscripcion.materno_tutor}
                     onChange={handleChange}
                     {...inputBaseProps}
+                    InputProps={{
+                      ...inputBaseProps.InputProps,
+                      readOnly: !!inscripcionData?.materno_tutor,
+                    }}
                   />
                 </Grid>
 
@@ -492,8 +522,8 @@ function FormInscripcion() {
             </Box>
           )}
           
-          {!editing && (
-            <Box mb={4}>
+          {/* SECCIÓN DATOS INSCRIPCION */}
+          <Box mb={4}>
               <Typography variant="h6" sx={{ mb: 1.5, color: "#90caf9" }}>
                 Datos Inscripcion
               </Typography>
@@ -507,7 +537,8 @@ function FormInscripcion() {
                     value={inscripcion.fecha_inscripcion}
                     onChange={handleChange}
                     {...inputBaseProps}
-                    // Quité el readOnly para que siempre se puedan introducir/modificar estos datos
+                    // NOTA: Para edición, estos campos suelen ser editables
+                    // y los campos Nota/Intento también deben ser editables
                   />
                 </Grid>
 
@@ -520,66 +551,79 @@ function FormInscripcion() {
                     {...inputBaseProps}
                   />
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography sx={{ mb: 1 }}>Nota 1:</Typography>
-                  <TextField
-                    name="nota1"
-                    value={inscripcion.nota1}
-                    onChange={handleChange}
-                    {...inputBaseProps}
-                  />
-                </Grid>
+                
+                
+                {/* CAMPOS QUE SOLO APARECEN EN EDICIÓN */}
+                {editing && (
+                  <>
+                    {/* --------------------- NOTAS --------------------- */}
+                    <Grid item xs={12} sm={4}>
+                      <Typography sx={{ mb: 1 }}>Nota 1:</Typography>
+                      <TextField
+                        name="nota1"
+                        value={inscripcion.nota1}
+                        onChange={handleChange}
+                        {...inputBaseProps}
+                      />
+                    </Grid>
 
-                 <Grid item xs={12} sm={4}>
-                  <Typography sx={{ mb: 1 }}>Nota 2:</Typography>
-                  <TextField
-                    name="nota2"
-                    value={inscripcion.nota2}
-                    onChange={handleChange}
-                    {...inputBaseProps}
-                  />
-                </Grid>
-                 <Grid item xs={12} sm={4}>
-                  <Typography sx={{ mb: 1 }}>Nota 3:</Typography>
-                  <TextField
-                    name="nota3"
-                    value={inscripcion.nota3}
-                    onChange={handleChange}
-                    {...inputBaseProps}
-                  />
-                </Grid>
-               
-                 <Grid item xs={12} sm={4}>
-                  <Typography sx={{ mb: 1 }}>Intento N1:</Typography>
-                  <TextField
-                    name="intento1"
-                    value={inscripcion.intento1}
-                    onChange={handleChange}
-                    {...inputBaseProps}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography sx={{ mb: 1 }}>Intento N2:</Typography>
-                  <TextField
-                    name="intento2"
-                    value={inscripcion.intento2}
-                    onChange={handleChange}
-                    {...inputBaseProps}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Typography sx={{ mb: 1 }}>Intento N3:</Typography>
-                  <TextField
-                    name="intento3"
-                    value={inscripcion.intento3}
-                    onChange={handleChange}
-                    {...inputBaseProps}
-                  />
-                </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography sx={{ mb: 1 }}>Nota 2:</Typography>
+                      <TextField
+                        name="nota2"
+                        value={inscripcion.nota2}
+                        onChange={handleChange}
+                        {...inputBaseProps}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={4}>
+                      <Typography sx={{ mb: 1 }}>Nota 3:</Typography>
+                      <TextField
+                        name="nota3"
+                        value={inscripcion.nota3}
+                        onChange={handleChange}
+                        {...inputBaseProps}
+                      />
+                    </Grid>
+
+                    {/* --------------------- INTENTOS --------------------- */}
+                    <Grid item xs={12} sm={4}>
+                      <Typography sx={{ mb: 1 }}>Intento N1:</Typography>
+                      <TextField
+                        name="intento1"
+                        value={inscripcion.intento1}
+                        onChange={handleChange}
+                        {...inputBaseProps}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={4}>
+                      <Typography sx={{ mb: 1 }}>Intento N2:</Typography>
+                      <TextField
+                        name="intento2"
+                        value={inscripcion.intento2}
+                        onChange={handleChange}
+                        {...inputBaseProps}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={4}>
+                      <Typography sx={{ mb: 1 }}>Intento N3:</Typography>
+                      <TextField
+                        name="intento3"
+                        value={inscripcion.intento3}
+                        onChange={handleChange}
+                        {...inputBaseProps}
+                      />
+                    </Grid>
+                  </>
+                )}
+
 
               </Grid>
             </Box>
-          )}
+          
 
           <Grid container justifyContent="center">
             <Grid item>

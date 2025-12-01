@@ -1,18 +1,28 @@
-import { Grid, Card, CardMedia, Typography, Box, Rating } from '@mui/material';
-import img from '../../../assets/pensador_lentes.jpeg';
-import SchoolIcon from '@mui/icons-material/School';
+import { Grid, Card, Typography, Box, Divider } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import LinkIcon from '@mui/icons-material/Link';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import GroupIcon from '@mui/icons-material/Group';
+
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const TEACHER_IMAGE_URL = img;
+// Componente para mostrar detalles destacados
+const DetailChip = ({ icon: Icon, label, value, color = 'text.secondary' }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+    <Icon sx={{ mr: 1, color: 'primary.main', fontSize: 22 }} />
+    <Typography variant="body1" fontWeight="bold" color={color} sx={{ mr: 1 }}>
+      {label}:
+    </Typography>
+    <Typography variant="body1" color="text.primary">
+      {value}
+    </Typography>
+  </Box>
+);
 
 const HeaderParalelo = ({ id, nombre, descripcion, costo }) => {
   const [paralelo, setParalelo] = useState(null);
-  const [tutor, setTutor] = useState(null);
-
-  // --- 1️⃣ Obtener paralelos de la tutoría ---
+  
+  // Lógica de fetch de datos sin cambios
   useEffect(() => {
     if (!id) return;
 
@@ -25,7 +35,7 @@ const HeaderParalelo = ({ id, nombre, descripcion, costo }) => {
           return;
         }
 
-        // Tomamos el primer paralelo activo (si hay más, se puede cambiar para listar todos)
+        // Tomamos el primer paralelo activo
         setParalelo(res.data[0]);
 
       } catch (err) {
@@ -36,135 +46,118 @@ const HeaderParalelo = ({ id, nombre, descripcion, costo }) => {
     fetchParalelo();
   }, [id]);
 
-  // --- 2️⃣ Obtener tutor del paralelo ---
-  useEffect(() => {
-    if (!paralelo?.id_paralelo) return;
 
-    const fetchTutor = async () => {
-      try {
-        const res = await axios.get(`http://localhost:4000/TutorPorParalelo/${paralelo.id_paralelo}`);
-
-        if (!res.data || res.data.length === 0) {
-          console.warn("No se encontró tutor para este paralelo");
-          return;
-        }
-
-        setTutor(res.data[0]); // Devuelve un array, tomamos el primer tutor
-
-      } catch (err) {
-        console.error("Error al obtener tutor:", err);
-      }
-    };
-
-    fetchTutor();
-  }, [paralelo]);
+  // Placeholder para datos del paralelo (usado si el fetch aún no carga)
+  const currentParalelo = paralelo || {};
 
   return (
-    <Grid container spacing={4}>
+    <Grid container spacing={4} sx={{ mb: 4 }}>
 
-      {/* --- TARJETA DE TUTOR --- */}
-      <Grid item xs={12} sm={4}>
-        <Card elevation={6} sx={{ borderRadius: 3, p: 3, backgroundColor: '#ffffff' }}>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-            <CardMedia
-              component="img"
-              image={tutor?.foto || TEACHER_IMAGE_URL}
-              sx={{
-                width: 150,
-                height: 150,
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: '4px solid #3f51b5',
-                mb: 2
-              }}
-            />
-
-            <Typography variant="h5" fontWeight="bold" color="primary.dark">
-              {tutor?.nombre || "Nombre del Tutor"} {tutor?.paterno || ""} {tutor?.materno || ""}
-            </Typography>
-
-            <Typography variant="caption" color="text.secondary">
-              Tutor Certificado
-            </Typography>
-          </Box>
-
-          {/* Información del tutor */}
-          <Box sx={{ mt: 2, p: 1, borderTop: '1px solid #e0e0e0' }}>
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1, color: '#555' }}>
-              Detalles del Tutor
-            </Typography>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <SchoolIcon color="action" sx={{ mr: 1 }} />
-              <Typography variant="body2" color="text.secondary">
-                {tutor?.especialidad || "Especialidad no registrada"}
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <AccessTimeIcon color="action" sx={{ mr: 1 }} />
-              <Typography variant="body2" color="text.secondary">
-                {tutor?.anos_experiencia ? `${tutor.anos_experiencia} años de experiencia` : "Sin información"}
-              </Typography>
-            </Box>
-
-            {/* Mostrar CV si existe */}
-            {tutor?.cv && (
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                <LinkIcon color="primary" sx={{ mr: 1 }} />
-                <Typography
-                  variant="body2"
-                  color="primary"
-                  component="a"
-                  href={tutor.cv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ver Portafolio (CV)
-                </Typography>
-              </Box>
-            )}
-
-          </Box>
-        </Card>
-      </Grid>
-
-      {/* --- TARJETA DE TUTORIA --- */}
+      {/* --- TARJETA PRINCIPAL DE TUTORÍA --- */}
       <Grid item xs={12} sm={8}>
         <Card elevation={6} sx={{
-          p: 3,
-          borderRadius: 3,
+          p: 4,
+          borderRadius: 4,
           minHeight: { sm: 400 },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          backgroundColor: '#e3f2fd'
+          // Fondo más sutil y limpio
+          background: 'linear-gradient(145deg, #ffffff, #f0f8ff)',
+          border: '1px solid #e0e0e0'
         }}>
 
           <Box>
-            <Typography variant="h3" fontWeight="bold" color="primary.dark" sx={{ mb: 2 }}>
+            {/* Título Principal */}
+            <Typography 
+              variant="h3" 
+              fontWeight="extrabold" // Más impacto
+              color="primary.dark" 
+              sx={{ 
+                mb: 1, 
+                borderBottom: '3px solid', 
+                borderColor: 'secondary.main', 
+                display: 'inline-block',
+                pb: 0.5 
+              }}
+            >
               {nombre}
             </Typography>
 
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+            {/* Subtítulo / Resumen */}
+            <Typography variant="h6" color="text.primary" sx={{ mt: 2, mb: 1, fontStyle: 'italic' }}>
               {descripcion}
             </Typography>
-
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              {paralelo?.descripcion_larga || "Esta tutoría está diseñada para mejorar tus habilidades..."}
-            </Typography>
+            
+           
+            
           </Box>
 
           <Box>
-            <Rating name="course-rating" value={4.0} readOnly precision={0.5} size="large" />
+            <Divider sx={{ mb: 2 }} />
+            
+            {/* Información clave del paralelo (usando datos ficticios si no hay fetch) */}
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <DetailChip 
+                  icon={GroupIcon} 
+                  label="Vacantes" 
+                  value={currentParalelo.cupo_maximo ? `${currentParalelo.cupo_maximo} estudiantes` : 'Limitadas'} 
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <DetailChip 
+                  icon={AccessTimeIcon} 
+                  label="Duración" 
+                  value={currentParalelo.duracion_semanas ? `${currentParalelo.duracion_semanas} Semanas` : 'Indefinida'} 
+                />
+              </Grid>
+            </Grid>
 
-            <Typography variant="h4" fontWeight="bold" color="text.primary" sx={{ mt: 2 }}>
-              Precio: <span style={{ color: '#e91e63' }}>{costo} Bs</span>
-            </Typography>
+
+            {/* Sección de Precio Destacada */}
+            <Box sx={{ 
+              mt: 3, 
+              p: 2, 
+              backgroundColor: '#ffebee', 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <AttachMoneyIcon sx={{ color: '#e91e63', fontSize: 30, mr: 1 }} />
+                <Typography variant="h5" fontWeight="bold" color="text.primary">
+                  Inversión Total:
+                </Typography>
+              </Box>
+              
+              <Typography variant="h3" fontWeight="bold" color="#e91e63">
+                {costo} Bs
+              </Typography>
+            </Box>
           </Box>
 
         </Card>
+      </Grid>
+      
+      {/* Puedes usar esta columna para una imagen de la tutoría o un componente de tutor */}
+      <Grid item xs={12} sm={4}>
+          <Card elevation={3} sx={{
+            p: 3,
+            borderRadius: 4,
+            height: '100%',
+            backgroundColor: '#ffffff'
+          }}>
+              <Typography variant="h6" fontWeight="bold" color="primary.main" gutterBottom>
+                  ¿Qué incluye?
+              </Typography>
+              <Box component="ul" sx={{ pl: 2, listStyleType: 'disc' }}>
+                  <Typography component="li" variant="body2" sx={{ mb: 1 }}>Acceso a material exclusivo.</Typography>
+                  <Typography component="li" variant="body2" sx={{ mb: 1 }}>Certificado de finalización.</Typography>
+                  <Typography component="li" variant="body2" sx={{ mb: 1 }}>Sesiones en vivo con el tutor.</Typography>
+                  <Typography component="li" variant="body2" sx={{ mb: 1 }}>Soporte personalizado.</Typography>
+              </Box>
+          </Card>
       </Grid>
 
     </Grid>

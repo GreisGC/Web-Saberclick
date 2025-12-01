@@ -19,7 +19,10 @@ function TuroriasHome() {
           nombre={nombre}
           descripcion={descripcion}
         />
-        <TutoresSection idInstitucion={id} />
+        <TutoresSection 
+          idInstitucion={id} 
+          nombreInstitucion={nombre} 
+        />
       </Container>
       
     </React.Fragment>
