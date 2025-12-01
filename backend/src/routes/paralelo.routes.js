@@ -8,11 +8,13 @@ const {
     getTutorPorParalelo,
     createParalelo,
     deleteParalelo,
-    updateParalelo
+    updateParalelo,
+	getAllParaleloByTutor
 } = require('../controllers/paralelo.controller');
 
 
 router.get('/paralelo', getAllParalelo);
+router.get('/getAllParaleloByTutor/:id_tutor', getAllParaleloByTutor);
 router.get('/paralelo/:id', getParalelo);
 router.get('/paraleloPorTutoria/:id', getParaleloPorTutoria);
 router.get('/TutorPorParalelo/:id', getTutorPorParalelo, );

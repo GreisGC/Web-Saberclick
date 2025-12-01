@@ -95,10 +95,6 @@ const menuTutor = [
 		nombre: "Paralelo",
 	},
 	{
-		url: "/tema",
-		nombre: "Tema",
-	},
-	{
 		url: "/pregunta",
 		nombre: "Pregunta",
 	},

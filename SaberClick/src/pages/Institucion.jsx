@@ -1,18 +1,27 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UsuarioNav from './UsuarioNav'; 
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography,
 } from "@mui/material";
+import GetSesion from "../tools/GetSesion";
 
 function Institucion() {
   const [institucion, setInstitucion] = useState([]);
+  
   const navigate = useNavigate();
 
 
   const loadInstitucion = async () => {
     try {
-      const response = await fetch("http://localhost:4000/institucion");
+      const sesion=GetSesion();
+	    let url="http://localhost:4000/institucion";
+
+      if(sesion && sesion.rol=="gerente"){
+        url="http://localhost:4000/institucionByGerente/"+sesion.id
+      }
+      
+      const response = await fetch(url);
       const data = await response.json();
       setInstitucion(data); 
     } catch (error) {

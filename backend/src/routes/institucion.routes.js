@@ -1,17 +1,25 @@
-const { Router } = require('express');
-const { getAllInstitucion, getInstitucion, createInstitucion, deleteInstitucion, updateInstitucion } = require('../controllers/institucion.controller');
+const { Router } = require("express");
+const {
+	getAllInstitucion,
+	getInstitucion,
+	createInstitucion,
+	deleteInstitucion,
+	updateInstitucion,
+	getAllInstitucionByGerente,
+} = require("../controllers/institucion.controller");
 
+const router = Router();
 
-const router = Router ();
+router.get("/institucion", getAllInstitucion);
 
-router.get('/institucion', getAllInstitucion);
+router.get("/institucionByGerente/:id_gerente", getAllInstitucionByGerente);
 
-router.get('/institucion/:id', getInstitucion);
+router.get("/institucion/:id", getInstitucion);
 
-router.post('/institucion', createInstitucion);
+router.post("/institucion", createInstitucion);
 
-router.delete('/institucion/:id', deleteInstitucion);
+router.delete("/institucion/:id", deleteInstitucion);
 
-router.put('/institucion/:id', updateInstitucion);
+router.put("/institucion/:id", updateInstitucion);
 
 module.exports = router;

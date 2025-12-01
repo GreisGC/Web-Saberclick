@@ -4,6 +4,7 @@ import UsuarioNav from './UsuarioNav';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography,
 } from "@mui/material";
+import GetSesion from "../tools/GetSesion";
 
 function Tutoria() {
   const [tutoria, setTutoria] = useState([]);
@@ -110,7 +111,14 @@ function Tutoria() {
 
   const loadGerente = async () => {
     try {
-      const response = await fetch("http://localhost:4000/tutoria");
+
+		  const sesion=GetSesion();
+      let url="http://localhost:4000/tutoria";
+    
+      if(sesion && sesion.rol=="gerente"){
+        url="http://localhost:4000/getAllTutoriaByGerente/"+sesion.id
+      }
+      const response = await fetch(url);
       const data = await response.json();
       setTutoria(data); 
     } catch (error) {

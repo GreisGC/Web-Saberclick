@@ -12,6 +12,22 @@ const getAllTutoria = async (req, res, next) => {
 	}
 };
 
+const getAllTutoriaByGerente = async (req, res, next) => {
+	try {
+		const {id_gerente}=req.params;
+		const allTutoria = await pool.query(
+			`
+			SELECT t.* FROM tutoria t 
+			INNER JOIN institucion i ON i.id_institucion = t.id_institucion AND i.id_gerente = $1
+			WHERE t.estado = 'Habilitado'
+			`,[id_gerente]
+		);
+		res.json(allTutoria.rows);
+	} catch (error) {
+		next(error);
+	}
+};
+
 // Obtener un Tutoria por ID
 const getTutoria = async (req, res, next) => {
 	try {
@@ -228,4 +244,5 @@ module.exports = {
 	createTutoria,
 	deleteTutoria,
 	updateTutoria,
+	getAllTutoriaByGerente
 };

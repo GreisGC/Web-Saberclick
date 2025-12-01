@@ -4,6 +4,7 @@ import UsuarioNav from './UsuarioNav';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography,
 } from "@mui/material";
+import GetSesion from "../tools/GetSesion";
 
 function Paralelo() {
   const [paralelo, setParalelo] = useState([]);
@@ -22,7 +23,13 @@ function Paralelo() {
 
   const loadParalelo = async () => {
     try {
-      const response = await fetch("http://localhost:4000/paralelo");
+		  const sesion=GetSesion();
+      let url="http://localhost:4000/paralelo";
+    
+      if(sesion && sesion.rol=="tutor"){
+        url="http://localhost:4000/getAllParaleloByTutor/"+sesion.id
+      }
+      const response = await fetch(url);
       const data = await response.json();
       setParalelo(data); 
     } catch (error) {
