@@ -65,6 +65,7 @@ const ParaleloHome = () => {
             <ParaleloHorario 
               id_tutoria={id}
               nombreTutoria={nombre} 
+			  idInstitucion={idInstitucion}
               nombreInstitucion={nombreInstitucion} // ✅ Ahora autocompleta correctamente
             />
           </Grid>

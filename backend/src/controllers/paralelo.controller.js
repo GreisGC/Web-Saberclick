@@ -60,7 +60,7 @@ const getParaleloPorTutoriaByEstudiante = async (req, res, next) => {
 
     const result = await pool.query(
       `
-        SELECT p.*, i.id_estudiante FROM paralelo p
+        SELECT p.*, i.id_estudiante,i.id_inscripcion FROM paralelo p
         LEFT JOIN inscripcion i ON i.id_paralelo = p.id_paralelo AND i.id_estudiante = $1
         WHERE p.id_tutoria = $2 AND p.estado = 'Habilitado'`,
       [id_estudiante,id_tutoria]

@@ -2,7 +2,12 @@ import { Button } from "@mui/material";
 import { useState } from "react";
 import BodyRespuestas from "./BodyRespuestas";
 
-const ViewEvaluacion = ({ id_institucion, id_tutoria, onSendNota,id_inscripcion }) => {
+const ViewEvaluacion = ({
+	id_institucion,
+	id_tutoria,
+	onSendNota,
+	id_inscripcion,
+}) => {
 	const [notaTotal, setNotaTotal] = useState(null);
 	const [nroPregunta, setNroPregunta] = useState(0);
 	const [listaPreguntas, setListaPreguntas] = useState([]);
@@ -24,8 +29,6 @@ const ViewEvaluacion = ({ id_institucion, id_tutoria, onSendNota,id_inscripcion 
 			body: raw,
 			redirect: "follow",
 		};
-
-		console.log(requestOptions, id_institucion);
 
 		fetch("http://localhost:4000/pregunta/listarPreguntas", requestOptions)
 			.then((response) => response.json())
@@ -90,13 +93,13 @@ const ViewEvaluacion = ({ id_institucion, id_tutoria, onSendNota,id_inscripcion 
 									(correcto.length / respuestas.length) * 100;
 								sendNroIntento(t);
 								setNotaTotal(t);
+								setListaPreguntas([]);
 								onSendNota();
-								return
+								return;
 							}
-							
 						}}
 					/>
-					{notaTotal!=null ? (
+					{notaTotal != null ? (
 						<div className="grid">
 							<p className="font-bold">{`Nota total: ${notaTotal}`}</p>
 							{respuestas.map((r, index) => (
@@ -121,7 +124,12 @@ const ViewEvaluacion = ({ id_institucion, id_tutoria, onSendNota,id_inscripcion 
 				</>
 			) : (
 				<>
-					<Button size="small" onClick={() => getEvaluacion()}>
+					<Button
+						size="small"
+						onClick={() => {
+							getEvaluacion();
+						}}
+					>
 						Comenzar Evaluacion
 					</Button>
 				</>

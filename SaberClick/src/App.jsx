@@ -34,6 +34,7 @@ import FormInscripcion from './pages/FormInscripcion';
 import { useContext, useEffect } from 'react';
 import { SesionContext } from './context/SesionContext';
 import { jwtDecode } from 'jwt-decode';
+import Evaluacion from './pages/Evaluacion';
 
 
 
@@ -101,6 +102,8 @@ function App() {
 			<Route path="/opcion/:id/edit" element={<FormOpcion/>}/>
 			<Route path="/inscripcion/:id/edit" element={<FormInscripcion/>}/>
 			<Route path="/tutor/:id/edit" element={<FormTutor/>}/>
+
+			<Route path="/evaluacion" element={<Evaluacion/>}/>
 		</Routes>
 	</BrowserRouter>
     

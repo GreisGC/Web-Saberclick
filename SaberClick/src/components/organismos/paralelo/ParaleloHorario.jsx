@@ -54,9 +54,10 @@ const DetailRow = ({ icon: Icon, label, value }) => (
 );
 
 // Componente principal
-const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
+const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion,idInstitucion }) => {
   const [paralelos, setParalelos] = useState([]);
   const [tutores, setTutores] = useState({});
+  const [session,setSession]=useState(null);
   const navigate = useNavigate();
 
   // Lógica de useEffect (fetch de datos) sin cambios
@@ -66,6 +67,7 @@ const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
     const fetchParalelos = async () => {
       try {
         const sesion=GetSesion();
+        setSession(sesion);
         let url=`http://localhost:4000/paraleloPorTutoria/${id_tutoria}`;
       
         if(sesion && sesion.rol=="estudiante"){
@@ -295,20 +297,35 @@ const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
                     xs={12}
                     sx={{ mt: 2, textAlign: 'center' }}
                   >
-                    {!data.id_estudiante?
+                    {
+                      session && session.rol=='estudiante'?
+                      <>
+                      
+                        {!data.id_estudiante?
 
-                    <Button
-                      variant="contained"
-                      size="large"
-                      onClick={() => onClick(data, tutor)}
-                      sx={{ minWidth: 200, py: 1.5 }}
-                    >
-                      Inscribirme a este Paralelo
-                    </Button>:
-                    <Button color="success">
-                      Ver inscripcion
-                    </Button>
+                          <Button
+                            variant="contained"
+                            size="large"
+                            onClick={() => onClick(data, tutor)}
+                            sx={{ minWidth: 200, py: 1.5 }}
+                          >
+                            Inscribirme a este Paralelo
+                          </Button>:
+                          <Button color="success" onClick={()=>{
+                            navigate("/evaluacion",{
+                              state:{idTutoria:id_tutoria,
+                                idInstitucion:idInstitucion,
+                                idInscripcion:data.id_inscripcion
+                              }
+                            })
+                          }}>
+                            Ver inscripcion
+                          </Button>
+                        }
+                      </>:
+                      <></>
                     }
+                    
                   </Grid>
 
                 </Grid>

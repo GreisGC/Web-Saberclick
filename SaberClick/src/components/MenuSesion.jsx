@@ -86,7 +86,6 @@ const menuEstudiante = [
 		url: "/inscripcion",
 		nombre: "Inscripcion",
 	},
-	
 ];
 
 const menuTutor = [
@@ -121,6 +120,7 @@ const MenuSesion = () => {
 
 		localStorage.removeItem("x-token");
 		setSesionI(null);
+		navigate("/");
 
 		setOpen(false);
 	};
@@ -129,7 +129,6 @@ const MenuSesion = () => {
 		if (anchorRef.current && anchorRef.current.contains(event.target)) {
 			return;
 		}
-
 
 		setOpen(false);
 	};
