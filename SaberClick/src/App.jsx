@@ -3,8 +3,6 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import Home from './pages/Home'; 
 import TutoriasHome from './pages/TutoriasHome'; 
 import ParaleloHome from './pages/ParaleloHome'; 
-
-
 import Usuarios from './pages/Usuarios'; 
 import UsuarioForm from './pages/UsuarioForm';
 import FormGerente from './pages/FormGerente';
@@ -22,6 +20,8 @@ import Tema from './pages/Tema';
 import Paralelo from './pages/Paralelo';
 import Pregunta from './pages/Pregunta';
 import Tutor from './pages/Tutor'
+import PagoModal from './pages/PagoModal'
+import Calificaciones from './pages/Calificaciones'
 //import Menu from './pages/UsuarioNav';
 //import {Container} from '@mui/material';
 import FormPregunta from './pages/FormPregunta';
@@ -75,6 +75,8 @@ function App() {
 			<Route path="/pregunta" element={<Pregunta />} />
 			<Route path="/opcion" element={<Opcion />} />
 			<Route path="/inscripcion" element={<Inscripcion />} />
+			<Route path="/pago" element={<PagoModal />} /> 
+			<Route path="/calificaciones" element={<Calificaciones />} /> 
 
 			<Route path="/usuarios/new/Usuario" element={<UsuarioForm/>}/>
 			<Route path="/usuarios/new/Gerente" element={<FormGerente/>}/>

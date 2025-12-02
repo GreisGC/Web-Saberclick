@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Menu from './UsuarioNav';
+import Navbar from "../components/Navbar";
 import {
   Table,
   TableBody,
@@ -82,6 +83,9 @@ function Usuarios() {
         alignItems: "stretch",
       }}
     >
+      <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", zIndex: 100 }}>
+                      <Navbar />
+      </Box>
       <Menu/>
       
       <Typography

@@ -21,8 +21,8 @@ import LinkIcon from "@mui/icons-material/Link";
 import SchoolIcon from "@mui/icons-material/School";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'; // Nuevo icono para fechas
-import ClassIcon from '@mui/icons-material/Class'; // Nuevo icono para paralelo
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'; 
+import ClassIcon from '@mui/icons-material/Class'; 
 import PersonIcon from '@mui/icons-material/Person'; // Nuevo icono para tutor
 import img from '../../../assets/pensador_lentes.jpeg'
 import { useNavigate } from "react-router-dom";
@@ -306,7 +306,7 @@ const ParaleloHorario = ({ id_tutoria, nombreTutoria, nombreInstitucion }) => {
                       Inscribirme a este Paralelo
                     </Button>:
                     <Button color="success">
-                      Ver inscripcion
+                      Calificaciones
                     </Button>
                     }
                   </Grid>

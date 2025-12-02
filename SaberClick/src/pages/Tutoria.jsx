@@ -112,7 +112,7 @@ function Tutoria() {
   const loadGerente = async () => {
     try {
 
-		  const sesion=GetSesion();
+		const sesion=GetSesion();
       let url="http://localhost:4000/tutoria";
     
       if(sesion && sesion.rol=="gerente"){
