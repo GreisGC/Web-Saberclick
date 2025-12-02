@@ -10,17 +10,11 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import GetSesion from "../tools/GetSesion";
 
 function FormInscripcion() {
   const location = useLocation();
   //  Desestructurar inscripcionData del state 
   const { inscripcionData } = location.state || {}; 
-  const [estudianteData,setEstudianteData]=useState({
-    nombre:"",
-    paterno:"",
-    materno:""
-  })
 
   const [inscripcion, setInscripcion] = useState({
     nombre_tutoria: "",
@@ -54,113 +48,89 @@ function FormInscripcion() {
   const params = useParams();
 
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage(null); 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setErrorMessage(null);
 
-    try {
-      let res;
-      let url;
-      let method;
+  try {
+    let res;
+    let url;
+    let method;
 
-      const payload = editing
-        ? {
-            fecha_inscripcion: inscripcion.fecha_inscripcion,
-            hora_inscripcion: inscripcion.hora_inscripcion,
-          
-          }
-        : {
-            ...inscripcion
-          };
-
-      if (editing) {
-        // ACTUALIZAR (PUT)
-        url = `http://localhost:4000/inscripcion/${params.id}`;
-        method = "PUT";
-
-        res = await fetch(url, {
-          method,
-          body: JSON.stringify(payload),
-          headers: { "Content-Type": "application/json" },
-        });
-      } else {
-        // CREAR NUEVA (POST)
-        url = "http://localhost:4000/inscripcion";
-        method = "POST";
-        payload.nombre_estudiante=estudianteData.nombre;
-        payload.paterno_estudiante=estudianteData.paterno;
-        payload.materno_estudiante=estudianteData.materno;
-        res = await fetch(url, {
-          method,
-          body: JSON.stringify(payload),
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        const serverMessage = errorData.message || "Error desconocido en el servidor.";
-        
-        if (
-          serverMessage.includes("Estudiante no existe") ||
-          serverMessage.includes("Tutoria no existe") ||
-          serverMessage.includes("Institucion no existe")||
-          serverMessage.includes("Paralelo no existe")||
-          serverMessage.includes("Tutor no existe")
-        ) {
-          setErrorMessage(serverMessage); 
-        } else {
-          setErrorMessage(`Error ${res.status}: ${serverMessage}`);
+    const payload = editing
+      ? {
+          fecha_inscripcion: inscripcion.fecha_inscripcion,
+          hora_inscripcion: inscripcion.hora_inscripcion,
         }
-        
-        throw new Error(serverMessage);
-      }
+      : {
+          ...inscripcion,
+        };
 
-      const data = await res.json();
-      console.log(
-        `${editing ? "Inscripcion actualizado" : "Inscripcion creado"}`,
-        data
-      );
+    if (editing) {
+      // ACTUALIZAR
+      url = `http://localhost:4000/inscripcion/${params.id}`;
+      method = "PUT";
 
-      navigate("/inscripcion");
-    } catch (error) {
-      console.error("Error en la operación:", error);
-    } finally {
-      setLoading(false);
+      res = await fetch(url, {
+        method,
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      // CREAR NUEVA
+      url = "http://localhost:4000/inscripcion";
+      method = "POST";
+
+      res = await fetch(url, {
+        method,
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+      });
     }
-  };
 
-  const getEstudiante= async()=>{
-    try{
+    if (!res.ok) {
+      const errorData = await res.json();
+      const serverMessage =
+        errorData.message || "Error desconocido en el servidor.";
 
-      const sesion=GetSesion();
-      if(!sesion){
-        console.log("No hay sesion del estudiante")
+      if (
+        serverMessage.includes("Estudiante no existe") ||
+        serverMessage.includes("Tutoria no existe") ||
+        serverMessage.includes("Institucion no existe") ||
+        serverMessage.includes("Paralelo no existe") ||
+        serverMessage.includes("Tutor no existe")
+      ) {
+        setErrorMessage(serverMessage);
+      } else {
+        setErrorMessage(`Error ${res.status}: ${serverMessage}`);
       }
+
+      throw new Error(serverMessage);
+    }
+
+    const data = await res.json();
+    console.log(
+      `${editing ? "Inscripcion actualizado" : "Inscripcion creado"}`,
+      data
+    );
+
     
-      const url=`http://localhost:4000/estudiante/${sesion.id}`;
-
-      const requestOptions = {
-        method: "GET",
-        redirect: "follow"
-      };
-
-      const res=await fetch(url,requestOptions);
-      const data= await res.json();
-      setEstudianteData({
-        materno:data.materno,
-        paterno:data.paterno,
-        nombre:data.nombre
-      })
-      return data
-
-      
-    }catch(error){
-      console.log(error);
-      return null
-    }
+    navigate("/pago", {
+      state: {
+        nombre_estudiante: `${inscripcion.nombre_estudiante} ${inscripcion.paterno_estudiante} ${inscripcion.materno_estudiante}`,
+        nombre_tutoria: inscripcion.nombre_tutoria,
+        nombre_institucion: inscripcion.nombre_institucion,
+        costo_tutoria: inscripcion.costo_tutoria,
+      },
+    });
+  } catch (error) {
+    console.error("Error en la operación:", error);
+  } finally {
+    setLoading(false);
   }
+};
+
 
   const handleChange = (e) =>
     setInscripcion({ ...inscripcion, [e.target.name]: e.target.value });
@@ -197,8 +167,6 @@ function FormInscripcion() {
   };
 
  useEffect(() => {
-    getEstudiante();
-
     // Si estamos en modo edición (hay params.id), cargamos los datos
     if (params.id) {
       loadParalelo(params.id);
@@ -242,15 +210,14 @@ function FormInscripcion() {
   };
 
 
-  const allFieldsFilled = (async () => {
+  const allFieldsFilled = (() => {
     // Campos de Inscripción que se auto-completan (fecha/hora) o se llenan en edición (notas/intentos)
     const requiredCreationInscripcionFields = [
         inscripcion.fecha_inscripcion,
         inscripcion.hora_inscripcion,
     ];
-
     
-    
+  
 
     if (editing) {
       // En modo edición, valida fecha/hora + notas/intentos
@@ -275,12 +242,9 @@ function FormInscripcion() {
         inscripcion.materno_tutor,
       
         // Campos del estudiante (Estos deben ser llenados por el usuario)
-        //inscripcion.nombre_estudiante,
-        estudiante.nombre,
-        //inscripcion.paterno_estudiante,
-        estudiante.paterno,
-        //inscripcion.materno_estudiante,
-        estudiante.materno,
+        inscripcion.nombre_estudiante,
+        inscripcion.paterno_estudiante,
+        inscripcion.materno_estudiante,
        
         // Fecha y hora de inscripción (auto-completados)
         ...requiredCreationInscripcionFields
@@ -352,7 +316,7 @@ function FormInscripcion() {
                   <Typography sx={{ mb: 1 }}>Nombre Estudiante:</Typography>
                   <TextField
                     name="nombre_estudiante"
-                    value={estudianteData.nombre}
+                    value={inscripcion.nombre_estudiante}
                     onChange={handleChange}
                     {...inputBaseProps}
                   />
@@ -362,7 +326,7 @@ function FormInscripcion() {
                   <Typography sx={{ mb: 1 }}>Apellido Paterno:</Typography>
                   <TextField
                     name="paterno_estudiante"
-                    value={estudianteData.paterno}
+                    value={inscripcion.paterno_estudiante}
                     onChange={handleChange}
                     {...inputBaseProps}
                   />
@@ -371,7 +335,7 @@ function FormInscripcion() {
                   <Typography sx={{ mb: 1 }}>Apellido Materno:</Typography>
                   <TextField
                     name="materno_estudiante"
-                    value={estudianteData.materno}
+                    value={inscripcion.materno_estudiante}
                     onChange={handleChange}
                     {...inputBaseProps}
                   />

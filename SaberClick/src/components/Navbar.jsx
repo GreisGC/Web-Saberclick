@@ -19,7 +19,7 @@ const Navbar = () => {
     // ⭐️ FUNCIÓN CLAVE PARA REDIRECCIÓN ⭐️
     const handleRegisterClick = () => {
         // Asumiendo que la ruta para UsuarioForm es /UsuarioForm
-        navigate('/UsuarioForm'); 
+        navigate('/usuarios/new/Usuario'); 
     };
 
     return (

@@ -10,16 +10,6 @@ const getAllInscripcion = async (req, res, next) => {
   }
 };
 
-const getAllInscripcionByEstudiante = async (req, res, next) => {
-  try {
-	const {id_estudiante}=req.params;
-    const allPago = await pool.query("SELECT * FROM inscripcion WHERE estado = 'Habilitado' AND id_estudiante = $1",[id_estudiante]);
-    res.json(allPago.rows);
-  } catch (error) {
-    next(error);
-  }
-};
-
 // Obtener Inscripcion por ID
 const getInscripcion = async (req, res, next) => {
   try {
@@ -36,6 +26,65 @@ const getInscripcion = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+const getAllInscripcionByEstudiante = async (req, res, next) => {
+  try {
+       const {id_estudiante}=req.params;
+    const allPago = await pool.query("SELECT * FROM inscripcion WHERE estado = 'Habilitado' AND id_estudiante = $1",[id_estudiante]);
+    res.json(allPago.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getNotasEstudiante = async (req, res, next) => {
+  try {
+    const { id } = req.params; // Capturamos el ID del estudiante de los parámetros de la ruta
+
+    // 1. Usamos INNER JOIN para unir inscripcion con tutoria por id_tutoria.
+    // 2. Usamos WHERE para filtrar por el id_estudiante específico.
+    // 3. Seleccionamos las columnas específicas de ambas tablas.
+    const query = `
+      SELECT
+       
+        i.id_tutoria,
+        i.id_estudiante,
+        i.id_paralelo,
+        i.fecha_inscripcion,
+        i.hora_inscripcion,
+        i.nota1,
+        i.nota2,
+        i.nota3,
+        i.intento1,
+        i.intento2,
+        i.intento3,
+        
+        t.nombre_tutoria,
+        t.costo,
+        t.descripcion
+        
+      FROM 
+        inscripcion i 
+      INNER JOIN 
+        tutoria t ON i.id_tutoria = t.id_tutoria 
+      WHERE 
+        i.id_estudiante = $1; 
+    `;
+
+    // Ejecutamos la consulta, pasando el id_estudiante como parámetro $1
+    const allInscripciones = await pool.query(query, [id]);
+    
+    // Devolvemos el resultado
+    res.json(allInscripciones.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Exporta la función para usarla en tus rutas
+module.exports = {
+    // ... otras funciones
+    getNotasEstudiante
 };
 
 // Crear Inscripcion con verificaciones completas
@@ -427,5 +476,7 @@ module.exports = {
   updateInscripcion,
   createInscripcion2,
   updateNroIntento,
+  getNotasEstudiante,
   getAllInscripcionByEstudiante
+  //getInscripcionCompleta
 };

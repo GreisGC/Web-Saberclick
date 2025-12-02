@@ -25,6 +25,10 @@ const menuAdmin = [
 		nombre: "Estudiante",
 	},
 	{
+		url: "/tutor",
+		nombre: "Tutor",
+	},
+	{
 		url: "/gerente",
 		nombre: "Gerente",
 	},

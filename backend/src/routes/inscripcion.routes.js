@@ -9,6 +9,7 @@ const {
 	updateInscripcion,
 	createInscripcion2,
 	updateNroIntento,
+	getNotasEstudiante,
 	getAllInscripcionByEstudiante,
 } = require("../controllers/inscripcion.controller");
 
@@ -20,5 +21,6 @@ router.post("/getinscripcion", createInscripcion2);
 router.delete("/inscripcion/:id", deleteInscripcion);
 router.put("/inscripcion/:id", updateInscripcion);
 router.post("/updateNota", updateNroIntento);
+router.get("/notasEstudiante/:id", getNotasEstudiante);
 
 module.exports = router;
